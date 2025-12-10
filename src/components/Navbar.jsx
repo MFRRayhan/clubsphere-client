@@ -1,7 +1,34 @@
 import React from "react";
 import { Link, NavLink } from "react-router";
+import useAuth from "../hooks/useAuth";
+import Swal from "sweetalert2";
 
 const Navbar = () => {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout()
+      .then(() => {
+        Swal.fire({
+          icon: "success",
+          title: "Logout Successful!",
+          timer: 2000,
+          showConfirmButton: false,
+          position: "center",
+        });
+      })
+      .catch((err) => {
+        Swal.fire({
+          icon: "error",
+          title: "Logout Failed!",
+          text: err.message,
+          timer: 2000,
+          showConfirmButton: false,
+          position: "center",
+        });
+      });
+  };
+
   const links = (
     <>
       <li>
@@ -19,7 +46,8 @@ const Navbar = () => {
   return (
     <div className="bg-base-100 shadow-sm">
       <div className="container mx-auto">
-        <div className="navbar ">
+        <div className="navbar">
+          {/* Left - Logo + Mobile Menu */}
           <div className="navbar-start">
             <div className="dropdown">
               <div
@@ -34,36 +62,84 @@ const Navbar = () => {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  {" "}
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
                     d="M4 6h16M4 12h8m-8 6h16"
-                  />{" "}
+                  />
                 </svg>
               </div>
+
               <ul
                 tabIndex="-1"
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+                className="primary-menu menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow"
               >
                 {links}
               </ul>
             </div>
-            <Link to="/" className="text-3xl font-black capitalize">
-              Clubsphere
+
+            <Link className="inline-block" to="/">
+              <div className="flex items-end">
+                <h3 className="text-3xl font-bold text-primary">ClubSphere</h3>
+              </div>
             </Link>
           </div>
+
+          {/* Center - Desktop Menu */}
           <div className="navbar-center hidden lg:flex">
-            <ul className="primary-menu menu menu-horizontal px-1">{links}</ul>
+            <ul className="primary-menu menu menu-horizontal px-1 space-x-2">
+              {links}
+            </ul>
           </div>
-          <div className="navbar-end space-x-2">
-            <Link to="/login" className="btn btn-info">
-              Login
-            </Link>
-            <Link to="/register" className="btn btn-info">
-              Register
-            </Link>
+
+          {/* Right — Buttons & Avatar Dropdown */}
+          <div className="navbar-end gap-3">
+            {/* If user logged in, show avatar dropdown */}
+            {user ? (
+              <div className="dropdown dropdown-end">
+                <div
+                  tabIndex={0}
+                  role="button"
+                  className="btn btn-ghost btn-circle avatar"
+                >
+                  <div className="w-10 rounded-full">
+                    <img
+                      className="object-top"
+                      alt="profile"
+                      src={
+                        user.photoURL ||
+                        "https://i.ibb.co.com/TM9j0Rqd/icon-7797704-640.png"
+                      }
+                    />
+                  </div>
+                </div>
+
+                <ul
+                  tabIndex={0}
+                  className="menu menu-sm dropdown-content bg-base-100 rounded-xl z-1 mt-3 w-52 p-2 shadow"
+                >
+                  <li>
+                    <Link to="/profile">Profile</Link>
+                  </li>
+                  <li>
+                    <Link to="/dashboard">Dashboard</Link>
+                  </li>
+                  <li>
+                    <button onClick={handleLogout}>Logout</button>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn-outline btn-primary">
+                  Sign In
+                </Link>
+                <Link to="/register" className="btn btn-outline btn-primary">
+                  Register
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -1,11 +1,18 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+/* @plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  --color-primary: #feac00;
+  --color-secondary: #333;
+} */
+
 /* CLUBSPHERE CSS */
 .primary-menu a {
   @apply px-4 py-2 text-gray-700 hover:bg-gray-200 rounded;
 }
 
 .primary-menu a.active {
-  @apply bg-blue-500 text-white font-semibold rounded-full;
+  @apply bg-primary text-white font-semibold;
 }
