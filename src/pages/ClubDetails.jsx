@@ -1,19 +1,34 @@
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import React, { useState } from "react";
-import { useParams } from "react-router";
-import useAxiosSecure from "../hooks/useAxiosSecure";
+import React, { useState, useEffect } from "react";
+import { useParams, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAuth from "../hooks/useAuth";
+import Swal from "sweetalert2";
 
 const ClubDetails = () => {
   const { id } = useParams();
+  const location = useLocation();
   const axiosSecure = useAxiosSecure();
+  const { user } = useAuth();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const modalOpen = () => setIsOpen(true);
-  const modalClose = () => setIsOpen(false);
+  // Check if payment success
+  const query = new URLSearchParams(location.search);
+  const isPaid = query.get("payment") === "success";
 
-  // Get single club data
+  useEffect(() => {
+    if (isPaid) {
+      Swal.fire({
+        title: "Membership Purchased!",
+        text: "Your Club Membership has been activated.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    }
+  }, [isPaid]);
+
+  // Fetch single club
   const { data: club, isLoading } = useQuery({
     queryKey: ["club", id],
     queryFn: async () => {
@@ -21,6 +36,25 @@ const ClubDetails = () => {
       return res.data;
     },
   });
+
+  // Handle Membership Payment
+  const handlePayNow = async () => {
+    try {
+      const { data } = await axiosSecure.post(
+        "/create-club-membership-session",
+        { club, user }
+      );
+
+      window.location.href = data.url;
+    } catch (error) {
+      console.log(error);
+      Swal.fire({
+        title: "Payment Failed!",
+        text: "Something went wrong.",
+        icon: "error",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -50,15 +84,17 @@ const ClubDetails = () => {
             <p className="text-gray-700">{club.description}</p>
 
             <p>
-              <span className="font-semibold">Category:</span> {club.category}
+              <span className="font-semibold">Category: </span>
+              {club.category}
             </p>
 
             <p>
-              <span className="font-semibold">Location:</span> {club.location}
+              <span className="font-semibold">Location: </span>
+              {club.location}
             </p>
 
             <p>
-              <span className="font-semibold">Membership Fee:</span> $
+              <span className="font-semibold">Membership Fee: </span>$
               {club.membershipFee}
             </p>
 
@@ -74,49 +110,69 @@ const ClubDetails = () => {
               Status: {club.status}
             </p>
 
-            <button onClick={modalOpen} className="btn btn-primary">
-              Buy Membership
-            </button>
-
-            {/* Modal */}
-            <Dialog
-              open={isOpen}
-              as="div"
-              className="relative z-10 focus:outline-none"
-              onClose={modalClose}
+            <button
+              disabled={isPaid}
+              onClick={() => setIsModalOpen(true)}
+              className={`btn btn-primary ${
+                isPaid ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              <div className="fixed inset-0 z-10 w-screen overflow-y-auto bg-black/50">
-                <div className="flex min-h-full items-center justify-center p-4">
-                  <DialogPanel
-                    transition
-                    className="w-full max-w-md rounded-xl p-6 backdrop-blur-2xl duration-300 ease-out
-                    data-closed:transform-[scale(95%)] data-closed:opacity-0 bg-gray-900"
-                  >
-                    <DialogTitle
-                      as="h3"
-                      className="text-lg font-semibold text-white"
-                    >
-                      Payment Successful
-                    </DialogTitle>
-                    <p className="mt-2 text-sm text-white/60">
-                      Your membership purchase is completed. A confirmation
-                      email has been sent.
-                    </p>
-                    <div className="mt-4">
-                      <Button
-                        className="btn btn-primary w-full"
-                        onClick={modalClose}
-                      >
-                        Close
-                      </Button>
-                    </div>
-                  </DialogPanel>
-                </div>
-              </div>
-            </Dialog>
+              {isPaid ? "Membership Active" : "Buy Membership"}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && !isPaid && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl w-full max-w-lg p-6 shadow-lg relative">
+            <h3 className="text-xl font-bold mb-4">
+              Review Membership Details
+            </h3>
+
+            {/* Club Info */}
+            <p>
+              <strong>Club:</strong> {club.clubName}
+            </p>
+            <p>
+              <strong>Location:</strong> {club.location}
+            </p>
+            <p>
+              <strong>Membership Fee:</strong> ${club.membershipFee}
+            </p>
+
+            {/* User Info */}
+            <div className="mt-4 p-3 border rounded bg-gray-50">
+              <p className="font-semibold">User:</p>
+              <p>{user?.displayName}</p>
+              <p className="text-sm text-gray-600">{user?.email}</p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancel
+              </button>
+
+              <button className="btn btn-primary" onClick={handlePayNow}>
+                Proceed to Payment
+              </button>
+            </div>
+
+            {/* Close Icon */}
+            <button
+              className="absolute top-3 right-3 text-gray-600 text-xl"
+              onClick={() => setIsModalOpen(false)}
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

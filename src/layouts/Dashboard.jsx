@@ -1,22 +1,101 @@
-import { FaUserCheck, FaUsersCog } from "react-icons/fa";
 import { VscSettings } from "react-icons/vsc";
-import { RiEBike2Fill } from "react-icons/ri";
-import { LuNotepadText, LuPackageCheck } from "react-icons/lu";
 import { TbLayoutSidebarLeftExpand } from "react-icons/tb";
 import { Link, NavLink, Outlet } from "react-router";
 import { IoHomeOutline } from "react-icons/io5";
-import { MdEventAvailable } from "react-icons/md";
+import { MdEventAvailable, MdAddBusiness } from "react-icons/md";
 import { TiGroup } from "react-icons/ti";
+import { LuNotebook } from "react-icons/lu";
+import {
+  FaUsers,
+  FaRegCalendarCheck,
+  FaClipboardList,
+  FaMoneyCheckAlt,
+  FaUserShield,
+  FaUser,
+} from "react-icons/fa";
 
-// import useRole from "../hooks/useRole";
+import useRole from "../hooks/useRole";
 
 const Dashboard = () => {
-  // const { role } = useRole();
+  const { role, isLoading } = useRole();
+
+  if (isLoading) {
+    return <div className="p-10 text-xl font-bold">Loading Dashboard...</div>;
+  }
+
+  // -------------------------------
+  // ROLE-BASED MENU ITEMS
+  // -------------------------------
+  const adminMenu = [
+    { path: "/dashboard/admin", name: "Admin Overview", icon: IoHomeOutline },
+    {
+      path: "/dashboard/manage-users",
+      name: "Manage Users",
+      icon: FaUserShield,
+    },
+    { path: "/dashboard/manage-clubs", name: "Manage Clubs", icon: FaUsers },
+    {
+      path: "/dashboard/payments",
+      name: "All Payments",
+      icon: FaMoneyCheckAlt,
+    },
+  ];
+
+  const managerMenu = [
+    {
+      path: "/dashboard/manager",
+      name: "Manager Overview",
+      icon: IoHomeOutline,
+    },
+    { path: "/dashboard/my-clubs", name: "My Clubs", icon: FaUsers },
+    { path: "/dashboard/club-members", name: "Club Members", icon: TiGroup },
+    {
+      path: "/dashboard/manage-events",
+      name: "Manage Events",
+      icon: FaClipboardList,
+    },
+    {
+      path: "/dashboard/events-registration",
+      name: "Event Registrations",
+      icon: LuNotebook,
+    },
+    { path: "/dashboard/add-a-club", name: "Add Club", icon: MdAddBusiness },
+    {
+      path: "/dashboard/add-an-event",
+      name: "Create Event",
+      icon: MdEventAvailable,
+    },
+  ];
+
+  const memberMenu = [
+    { path: "/dashboard/member", name: "Member Overview", icon: IoHomeOutline },
+    { path: "/dashboard/my-clubs", name: "My Clubs", icon: FaUsers },
+    {
+      path: "/dashboard/my-events",
+      name: "My Events",
+      icon: FaRegCalendarCheck,
+    },
+    {
+      path: "/dashboard/payments",
+      name: "Payment History",
+      icon: FaMoneyCheckAlt,
+    },
+  ];
+
+  // -------------------------------------
+  // CHOOSE MENU BASED ON ROLE
+  // -------------------------------------
+  let sideMenu = [];
+
+  if (role === "admin") sideMenu = adminMenu;
+  if (role === "clubManager") sideMenu = managerMenu;
+  if (role === "member") sideMenu = memberMenu;
+
   return (
     <div className="drawer lg:drawer-open">
       <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
 
-      {/* Main Dashboard Content */}
+      {/* MAIN CONTENT */}
       <div className="drawer-content">
         {/* Logo */}
         <div className="px-4 my-5">
@@ -27,143 +106,45 @@ const Dashboard = () => {
           </Link>
         </div>
 
-        {/* Navbar */}
+        {/* TOP NAV */}
         <nav className="navbar w-full bg-base-300">
           <label
             htmlFor="my-drawer-4"
             aria-label="open sidebar"
             className="btn btn-square btn-ghost"
           >
-            {/* Sidebar Icon */}
             <TbLayoutSidebarLeftExpand className="my-1.5 inline-block size-6" />
           </label>
-          <div className="px-4 font-semibold text-lg">Dashboard</div>
+
+          <div className="px-4 font-semibold text-lg">Dashboard ({role})</div>
         </nav>
 
         <div className="p-5">
-          {/* Route content */}
           <Outlet />
         </div>
       </div>
 
-      {/* Sidebar */}
+      {/* SIDEBAR */}
       <div className="drawer-side is-drawer-close:overflow-visible">
-        <label
-          htmlFor="my-drawer-4"
-          aria-label="close sidebar"
-          className="drawer-overlay"
-        ></label>
+        <label htmlFor="my-drawer-4" className="drawer-overlay"></label>
 
         <div className="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
           <ul className="dashboard-sidebar menu w-full grow space-y-1">
-            {/* Home */}
-            <li>
-              <Link
-                to="/dashboard"
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                data-tip="Homepage"
-              >
-                <IoHomeOutline className="my-1.5 inline-block size-4" />
-                <span className="is-drawer-close:hidden">Homepage</span>
-              </Link>
-            </li>
+            {/* DYNAMIC MENU LOOP */}
+            {sideMenu.map(({ path, name, icon: Icon }) => (
+              <li key={path}>
+                <NavLink
+                  to={path}
+                  className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                  data-tip={name}
+                >
+                  <Icon className="my-1.5 inline-block size-4" />
+                  <span className="is-drawer-close:hidden">{name}</span>
+                </NavLink>
+              </li>
+            ))}
 
-            {/* add an event */}
-            <li>
-              <NavLink
-                to="/dashboard/add-an-event"
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                data-tip="Add an Event"
-              >
-                <MdEventAvailable className="my-1.5 inline-block size-4" />
-                <span className="is-drawer-close:hidden">Add an Event</span>
-              </NavLink>
-            </li>
-
-            {/* Payment History */}
-            <li>
-              <NavLink
-                to="/dashboard/add-a-club"
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                data-tip="Clubs"
-              >
-                <TiGroup className="my-1.5 inline-block size-4" />
-                <span className="is-drawer-close:hidden">Clubs</span>
-              </NavLink>
-            </li>
-
-            {/* Rider Routes / Links */}
-            {/* {role === "rider" && (
-              <> */}
-            <li>
-              <NavLink
-                to="/dashboard/assigned-deliveries"
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                data-tip="Assigned Deliveries"
-              >
-                <LuNotepadText className="my-1.5 inline-block size-4" />
-                <span className="is-drawer-close:hidden">
-                  Assigned Deliveries
-                </span>
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink
-                to="/dashboard/completed-deliveries"
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                data-tip="Completed Deliveries"
-              >
-                <LuPackageCheck className="my-1.5 inline-block size-4" />
-                <span className="is-drawer-close:hidden">
-                  Completed Deliveries
-                </span>
-              </NavLink>
-            </li>
-            {/* </>
-            )} */}
-
-            {/* Admin Routes / Links */}
-            {/* {role === "admin" && (
-              <> */}
-            {/* Approve Riders */}
-            <li>
-              <NavLink
-                to="/dashboard/assign-riders"
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                data-tip="Assign Riders"
-              >
-                <RiEBike2Fill className="my-1.5 inline-block size-4" />
-                <span className="is-drawer-close:hidden">Assign Riders</span>
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink
-                to="/dashboard/approve-riders"
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                data-tip="Approve Riders"
-              >
-                <FaUserCheck className="my-1.5 inline-block size-4" />
-                <span className="is-drawer-close:hidden">Approve Riders</span>
-              </NavLink>
-            </li>
-
-            {/* Manage Users */}
-            <li>
-              <NavLink
-                to="/dashboard/manage-users"
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                data-tip="Manage Users"
-              >
-                <FaUsersCog className="my-1.5 inline-block size-4" />
-                <span className="is-drawer-close:hidden">Manage Users</span>
-              </NavLink>
-            </li>
-            {/* </>
-            )} */}
-
-            {/* Settings */}
+            {/* SETTINGS always visible */}
             <li>
               <NavLink
                 to="/dashboard/settings"

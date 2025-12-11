@@ -1,4 +1,7 @@
 import axios from "axios";
+// import useAxiosSecure from "../hooks/useAxiosSecure";
+
+// const axiosSecure = useAxiosSecure();
 
 export const imgUpload = async (imgData) => {
   const formData = new FormData();
@@ -11,3 +14,9 @@ export const imgUpload = async (imgData) => {
 
   return data?.data?.display_url;
 };
+
+// save or update user data
+// export const saveOrUpdateUser = async (userData) => {
+//   const { data } = await axiosSecure.post("/user", userData);
+//   return data;
+// };

@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth";
 import SocialLogin from "../components/SocialLogin";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const Register = () => {
   const { registerUser, updateUserProfile } = useAuth();
@@ -19,43 +20,66 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const handleRegistration = (data) => {
-    const profileImg = data.photo[0];
+  const handleRegistration = async (data) => {
     const from = location.state?.from?.pathname || "/";
+    try {
+      const profileImg = data.photo[0];
+      if (!profileImg) throw new Error("Profile image is required");
 
-    registerUser(data.email, data.password)
-      .then(() => {
-        const formData = new FormData();
-        formData.append("image", profileImg);
+      // Firebase Email/Password Registration
+      const userCredential = await registerUser(data.email, data.password);
 
-        const img_API_URL = `https://api.imgbb.com/1/upload?key=${
-          import.meta.env.VITE_image_host_key
-        }`;
+      // Upload image to imgbb
+      const formData = new FormData();
+      formData.append("image", profileImg);
 
-        axios.post(img_API_URL, formData).then((res) => {
-          const photoURL = res.data.data.url;
+      const img_API_URL = `https://api.imgbb.com/1/upload?key=${
+        import.meta.env.VITE_image_host_key
+      }`;
+      const imgRes = await axios.post(img_API_URL, formData);
+      const photoURL = imgRes.data.data.url;
 
-          const userInfo = {
-            email: data.email,
-            displayName: data.name,
-            photoURL,
-          };
+      // Save user info in backend DB
+      const userInfo = {
+        email: data.email,
+        displayName: data.name,
+        photoURL,
+      };
+      const dbRes = await axiosSecure.post("/users", userInfo);
 
-          // Save user in DB
-          axiosSecure.post("/users", userInfo).then((res) => {
-            if (res.data.insertedId) console.log("User saved to DB");
-          });
+      if (dbRes.data.modifiedCount > 0) {
+        console.log("User lastLoggedIn updated");
+      } else if (dbRes.data.insertedId) {
+        console.log("User inserted in DB");
+      } else {
+        console.warn("No changes in DB");
+      }
 
-          // Update Firebase profile
-          updateUserProfile({ displayName: data.name, photoURL })
-            .then(() => {
-              reset();
-              navigate(from, { replace: true });
-            })
-            .catch((err) => console.error(err));
-        });
-      })
-      .catch((err) => console.error(err));
+      // Update Firebase profile
+      await updateUserProfile({ displayName: data.name, photoURL });
+
+      // Reset form and navigate
+      reset();
+      navigate(from, { replace: true });
+
+      // SweetAlert success
+      Swal.fire({
+        icon: "success",
+        title: "Registration Successful",
+        text: "Your account has been created successfully!",
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error("Registration error:", err);
+
+      // SweetAlert error
+      Swal.fire({
+        icon: "error",
+        title: "Registration Failed",
+        text: err.message || "Something went wrong. Please try again!",
+      });
+    }
   };
 
   return (

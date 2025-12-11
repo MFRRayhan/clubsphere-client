@@ -11,7 +11,7 @@ const ManagerRoute = ({ children }) => {
     return <Loader></Loader>;
   }
 
-  if (role !== "rider") {
+  if (role !== "clubManager") {
     return <Forbidden></Forbidden>;
   }
 

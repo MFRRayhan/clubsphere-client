@@ -10,10 +10,19 @@ import Dashboard from "../layouts/Dashboard";
 import PrivateRoute from "./PrivateRoutes";
 import DashboardHome from "../pages/dashboard/DashboardHome";
 import Settings from "../pages/dashboard/Settings";
-import ClubDetails from "../pages/Clubdetails";
+import ClubDetails from "../pages/ClubDetails";
 import EventsDetails from "../pages/EventsDetails";
 import AddAnEvent from "../pages/dashboard/AddAnEvent";
 import AddAClub from "../pages/dashboard/AddAClub";
+import ClubMembers from "../pages/dashboard/ClubMembers";
+import ManageEvents from "../pages/dashboard/ManageEvents";
+import EventRegistrations from "../pages/dashboard/EventRegistrations";
+import ManageUsers from "../pages/dashboard/ManageUsers";
+import ManageClubs from "../pages/dashboard/ManageClubs";
+import PaymentHistory from "../pages/dashboard/PaymentHistory";
+import BeAManager from "../pages/dashboard/BeAManager";
+import MyClubs from "../pages/dashboard/MyClubs";
+import MyEvents from "../pages/dashboard/MyEvents";
 
 export const router = createBrowserRouter([
   {
@@ -69,6 +78,42 @@ export const router = createBrowserRouter([
       {
         path: "add-a-club",
         Component: AddAClub,
+      },
+      {
+        path: "my-clubs",
+        Component: MyClubs,
+      },
+      {
+        path: "my-events",
+        Component: MyEvents,
+      },
+      {
+        path: "club-members",
+        Component: ClubMembers,
+      },
+      {
+        path: "manage-events",
+        Component: ManageEvents,
+      },
+      {
+        path: "events-registration",
+        Component: EventRegistrations,
+      },
+      {
+        path: "manage-users",
+        Component: ManageUsers,
+      },
+      {
+        path: "manage-clubs",
+        Component: ManageClubs,
+      },
+      {
+        path: "payments",
+        Component: PaymentHistory,
+      },
+      {
+        path: "be-a-manager",
+        Component: BeAManager,
       },
       // {
       //   path: "payment/:parcelId",
