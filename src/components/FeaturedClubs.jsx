@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 
-const Clubs = () => {
+const FeaturedClubs = () => {
   const axiosSecure = useAxiosSecure();
 
   const { data: clubs = [] } = useQuery({
@@ -14,13 +14,15 @@ const Clubs = () => {
     },
   });
 
+  const recentClubs = clubs.slice(0, 6);
+
   return (
     <div className="px-6 py-10">
-      <h2 class="text-2xl font-semibold mb-6">Clubs: {clubs.length}</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-center">Recent Clubs</h2>
 
       {/* GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {clubs.map((club) => (
+        {recentClubs.map((club) => (
           <div
             key={club._id}
             className="bg-white shadow-md rounded-lg overflow-hidden border"
@@ -80,4 +82,4 @@ const Clubs = () => {
   );
 };
 
-export default Clubs;
+export default FeaturedClubs;

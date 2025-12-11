@@ -16,3 +16,7 @@
 .primary-menu a.active {
   @apply bg-primary text-white font-semibold;
 }
+
+.dashboard-sidebar li a.active {
+  @apply bg-primary text-white;
+}
