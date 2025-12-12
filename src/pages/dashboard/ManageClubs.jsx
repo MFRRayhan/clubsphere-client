@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import Swal from "sweetalert2";
+import Loader from "../../components/Loader";
 
 const ManageClubs = () => {
   const axiosSecure = useAxiosSecure();
@@ -9,23 +10,22 @@ const ManageClubs = () => {
   const [loading, setLoading] = useState(true);
 
   // Load pending clubs
-  const fetchPendingClubs = async () => {
+  const fetchPendingClubs = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axiosSecure.get("/clubs");
-      // Only pending clubs
-      const pendingClubs = res.data.filter((c) => c.status === "pending");
-      setClubs(pendingClubs);
+      const res = await axiosSecure.get("/clubs?status=pending");
+      setClubs(res.data);
     } catch (err) {
       console.error(err);
+      Swal.fire("Error", "Failed to fetch clubs", "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [axiosSecure]);
 
   useEffect(() => {
     fetchPendingClubs();
-  }, []);
+  }, [fetchPendingClubs]);
 
   // Approve / Reject handler
   const handleStatusChange = async (clubId, newStatus) => {
@@ -52,9 +52,12 @@ const ManageClubs = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loader />;
 
-  if (clubs.length === 0) return <div>No pending clubs for approval.</div>;
+  if (clubs.length === 0)
+    return (
+      <div className="text-center mt-4">No pending clubs for approval.</div>
+    );
 
   return (
     <div>
@@ -67,7 +70,7 @@ const ManageClubs = () => {
           >
             <div>
               <h3 className="font-semibold text-lg">{club.clubName}</h3>
-              <p>{club.description}</p>
+              {club.description && <p>{club.description}</p>}
               <p className="text-sm text-gray-500">
                 Manager: {club.managerEmail}
               </p>

@@ -17,18 +17,17 @@ const AddAnEvent = () => {
     formState: { errors },
   } = useForm();
 
-  // Fetch clubs for this manager
+  // Fetch manager's clubs
   useEffect(() => {
-    if (user?.email) {
-      axiosSecure
-        .get(`/my-clubs/${user.email}`)
-        .then((res) => setClubs(res.data))
-        .catch((err) => console.error(err));
-    }
-  }, [user, axiosSecure]);
+    axiosSecure
+      .get("/my-clubs")
+      .then((res) => setClubs(res.data))
+      .catch((err) => console.error(err));
+  }, [axiosSecure]);
 
   const handleEventForm = async (data) => {
     try {
+      // Upload event banner image
       const eventBannerImg = data.eventBanner[0];
       const imgUrl = await imgUpload(eventBannerImg);
 
@@ -51,8 +50,7 @@ const AddAnEvent = () => {
         },
       };
 
-      const { data: result } = await axiosSecure.post("/events", eventInfo);
-      console.log(result);
+      await axiosSecure.post("/events", eventInfo);
 
       Swal.fire({
         icon: "success",
@@ -79,10 +77,10 @@ const AddAnEvent = () => {
 
       <form onSubmit={handleSubmit(handleEventForm)}>
         {/* Select Club */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Select Club</label>
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">Select Club</label>
           <select
-            className="select w-full"
+            className="w-full border rounded px-3 py-2"
             {...register("clubId", { required: true })}
             defaultValue=""
           >
@@ -101,11 +99,11 @@ const AddAnEvent = () => {
         </fieldset>
 
         {/* Event Name */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Event Name</label>
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">Event Name</label>
           <input
             type="text"
-            className="input w-full"
+            className="w-full border rounded px-3 py-2"
             placeholder="Event Name"
             {...register("eventName", { required: true })}
           />
@@ -115,11 +113,11 @@ const AddAnEvent = () => {
         </fieldset>
 
         {/* Event Date */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Event Date</label>
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">Event Date</label>
           <input
             type="date"
-            className="input w-full"
+            className="w-full border rounded px-3 py-2"
             {...register("eventDate", { required: true })}
           />
           {errors.eventDate && (
@@ -128,11 +126,11 @@ const AddAnEvent = () => {
         </fieldset>
 
         {/* Location */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Location</label>
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">Location</label>
           <input
             type="text"
-            className="input w-full"
+            className="w-full border rounded px-3 py-2"
             placeholder="City/Area"
             {...register("location", { required: true })}
           />
@@ -142,10 +140,10 @@ const AddAnEvent = () => {
         </fieldset>
 
         {/* Category */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Category</label>
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">Category</label>
           <select
-            className="select w-full"
+            className="w-full border rounded px-3 py-2"
             defaultValue=""
             {...register("eventCategory", { required: true })}
           >
@@ -162,10 +160,10 @@ const AddAnEvent = () => {
         </fieldset>
 
         {/* Description */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Description</label>
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">Description</label>
           <textarea
-            className="textarea w-full"
+            className="w-full border rounded px-3 py-2"
             placeholder="Event Description"
             {...register("eventDescription", { required: true })}
           />
@@ -174,43 +172,48 @@ const AddAnEvent = () => {
           )}
         </fieldset>
 
-        {/* Paid or Free */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Event Type</label>
-          <select className="select w-full" {...register("isPaid")}>
+        {/* Event Type */}
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">Event Type</label>
+          <select
+            className="w-full border rounded px-3 py-2"
+            {...register("isPaid")}
+          >
             <option value="free">Free</option>
             <option value="paid">Paid</option>
           </select>
         </fieldset>
 
         {/* Event Fee */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Event Fee (if paid)</label>
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">Event Fee (if paid)</label>
           <input
             type="number"
-            className="input w-full"
+            className="w-full border rounded px-3 py-2"
             placeholder="Event Fee"
             {...register("eventFee")}
           />
         </fieldset>
 
         {/* Max Attendees */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Maximum Attendees (optional)</label>
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">
+            Maximum Attendees (optional)
+          </label>
           <input
             type="number"
-            className="input w-full"
+            className="w-full border rounded px-3 py-2"
             placeholder="50"
             {...register("maxAttendees")}
           />
         </fieldset>
 
         {/* Banner */}
-        <fieldset className="fieldset mb-4">
-          <label className="label">Event Banner</label>
+        <fieldset className="mb-4">
+          <label className="block mb-1 font-medium">Event Banner</label>
           <input
             type="file"
-            className="file-input w-full"
+            className="w-full border rounded px-3 py-2"
             {...register("eventBanner", { required: true })}
           />
           {errors.eventBanner && (
@@ -218,7 +221,10 @@ const AddAnEvent = () => {
           )}
         </fieldset>
 
-        <button type="submit" className="btn btn-primary w-full mt-4">
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        >
           Create Event
         </button>
       </form>
