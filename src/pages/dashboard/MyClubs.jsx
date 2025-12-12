@@ -2,9 +2,10 @@ import React from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../hooks/useAuth";
-import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { FaEye, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
 import Loader from "../../components/Loader";
+import { Link } from "react-router-dom";
 
 const MyClubs = () => {
   const axiosSecure = useAxiosSecure();
@@ -37,7 +38,7 @@ const MyClubs = () => {
         axiosSecure
           .patch(`/memberships/cancel/${membershipId}`)
           .then((res) => {
-            if (res.data.deletedCount || res.data.modifiedCount) {
+            if (res.data.modifiedCount > 0) {
               refetch();
               Swal.fire({
                 title: "Cancelled!",
@@ -63,11 +64,33 @@ const MyClubs = () => {
     });
   };
 
-  if (isLoading) return <Loader></Loader>;
+  if (isLoading) return <Loader />;
+
+  if (memberships.length === 0) {
+    return (
+      <div className="text-center py-20">
+        <h3 className="text-xl font-semibold text-gray-700">
+          You are not an active member of any club yet.
+        </h3>
+        <p className="text-gray-500 mt-2">
+          Explore and join the{" "}
+          <Link
+            to="/clubs"
+            className="text-primary hover:underline font-medium"
+          >
+            Clubs Page
+          </Link>{" "}
+          to become a member!
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <div>My Active Memberships ({memberships.length})</div>
+      <h2 className="text-2xl font-semibold mb-6">
+        My Active Memberships ({memberships.length})
+      </h2>
 
       <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
         <table className="table">
@@ -92,11 +115,14 @@ const MyClubs = () => {
                   {new Date(membership.purchaseDate).toLocaleDateString()}
                 </td>
                 <td>{membership.status}</td>
-
                 <td className="space-x-2">
-                  <button className="btn btn-square hover:bg-primary hover:text-white">
+                  <Link
+                    to={`/clubs/${membership.clubId}`}
+                    className="btn btn-square hover:bg-primary hover:text-white"
+                    title="View Club Details"
+                  >
                     <FaEye />
-                  </button>
+                  </Link>
 
                   <button
                     onClick={() =>
@@ -106,6 +132,7 @@ const MyClubs = () => {
                       )
                     }
                     className="btn btn-square btn-error text-white"
+                    title="Cancel Membership"
                   >
                     <FaTrash />
                   </button>
