@@ -5,6 +5,7 @@ import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAuth from "../hooks/useAuth";
 import Swal from "sweetalert2";
 import Loader from "../components/Loader";
+import { Link } from "react-router-dom";
 
 const EventsDetails = () => {
   const { id } = useParams();
@@ -19,26 +20,86 @@ const EventsDetails = () => {
   const query = new URLSearchParams(location.search);
   const isPaid = query.get("payment") === "success";
 
-  // SweetAlert on successful payment
-  useEffect(() => {
-    if (isPaid) {
-      Swal.fire({
-        title: "Payment Successful!",
-        text: "Thanks for joining the event.",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-    }
-  }, [isPaid]);
-
   // Fetch event
-  const { data: event, isLoading } = useQuery({
+  const { data: event, isLoading: isLoadingEvent } = useQuery({
     queryKey: ["event", id],
     queryFn: async () => {
       const res = await axiosSecure.get(`/events/${id}`);
       return res.data;
     },
   });
+
+  // Fetch participation status
+  const {
+    data: participationStatus = { isParticipant: false },
+    refetch: refetchParticipationStatus,
+    isLoading: isLoadingParticipation,
+  } = useQuery({
+    queryKey: ["participationStatus", id, user?.email],
+    queryFn: async () => {
+      if (!user?.email) return { isParticipant: false };
+      const res = await axiosSecure.get(`/events/check-participant/${id}`);
+      return res.data;
+    },
+    enabled: !!id && !!user?.email,
+  });
+
+  const isAlreadyJoined = participationStatus.isParticipant || isPaid;
+
+  // Handle post-payment action: Record participation and show alert
+  useEffect(() => {
+    if (isPaid && event && !participationStatus.isParticipant) {
+      const createParticipation = async () => {
+        // --- 🎯 FIX: টোকেন রিফ্রেশ এবং ইউজার চেক ---
+        if (!user) {
+          console.error(
+            "User object is null, cannot proceed with token refresh."
+          );
+          return;
+        }
+        try {
+          // টোকেন রিফ্রেশ করার জন্য ফোর্স করুন যাতে axiosSecure আপডেট হয়
+          await user.getIdToken(true);
+
+          const participationData = {
+            eventId: event._id,
+            eventName: event.eventName,
+            eventFee: event.isPaid ? event.eventFee : 0,
+          };
+
+          // Record participation in backend
+          await axiosSecure.post("/event-participants", participationData);
+
+          // After successful record, refetch status and show success alert
+          refetchParticipationStatus();
+
+          Swal.fire({
+            title: "Payment Successful!",
+            text: "Thanks for joining the event.",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
+        } catch (error) {
+          console.error("Error creating event participation:", error);
+          Swal.fire({
+            title: "Error!",
+            text: "Payment was successful but recording participation failed. Please contact support.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
+      };
+
+      createParticipation();
+    }
+  }, [
+    isPaid,
+    event,
+    participationStatus.isParticipant,
+    refetchParticipationStatus,
+    axiosSecure,
+    user, // user dependency যোগ করা হয়েছে
+  ]);
 
   // Redirect to Stripe Checkout
   const handlePayNow = async () => {
@@ -59,15 +120,13 @@ const EventsDetails = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoadingEvent || isLoadingParticipation) {
     return (
       <div className="py-20 text-center text-lg font-medium">
         <Loader />
       </div>
     );
   }
-
-  console.log(user);
 
   return (
     <div className="my-10">
@@ -139,20 +198,24 @@ const EventsDetails = () => {
 
             {/* Pay Button */}
             <button
-              disabled={isPaid}
-              onClick={() => !isPaid && setIsModalOpen(true)}
+              disabled={isAlreadyJoined}
+              onClick={() => !isAlreadyJoined && setIsModalOpen(true)}
               className={`btn btn-primary w-full py-3 text-lg font-semibold ${
-                isPaid ? "opacity-50 cursor-not-allowed" : ""
+                isAlreadyJoined ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {isPaid ? "Paid" : "Pay Now"}
+              {isAlreadyJoined
+                ? "Joined"
+                : event.isPaid
+                ? "Pay Now"
+                : "Join Now"}
             </button>
           </div>
         </div>
       </div>
 
       {/* Modal */}
-      {isModalOpen && !isPaid && (
+      {isModalOpen && !isAlreadyJoined && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl w-full max-w-lg p-6 shadow-lg relative">
             <h3 className="text-xl font-bold mb-4">Review Event Details</h3>

@@ -4,83 +4,64 @@ import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../hooks/useAuth";
 import Swal from "sweetalert2";
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { Link } from "react-router-dom"; // Link Import Added
 
 const MyEvents = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
-  console.log("User Email:", user.email);
-  const { data: events = [], refetch } = useQuery({
-    queryKey: ["myEvents", user?.email],
+
+  // Changed query to fetch participation records (joined events)
+  const {
+    data: joinedEvents = [],
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: ["joinedEvents", user?.email],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/events?email=${user.email}`);
+      // Fetch participations from the new API endpoint
+      const res = await axiosSecure.get(`/my-participations`);
       return res.data;
     },
+    enabled: !!user?.email,
   });
 
-  const handleEventDelete = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        axiosSecure.delete(`/events/${id}`).then((res) => {
-          if (res.data.deletedCount) {
-            refetch();
-            Swal.fire({
-              title: "Deleted!",
-              text: "Your file has been deleted.",
-              icon: "success",
-            });
-          }
-        });
-      }
-    });
-  };
+  if (isLoading)
+    return <div className="py-20 text-center">Loading joined events...</div>;
 
   return (
     <div>
-      <div>MyEvents {events.length}</div>
+      <div>My Joined Events ({joinedEvents.length})</div>
       <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
         <table className="table">
-          {/* head */}
           <thead>
             <tr>
               <th>Index</th>
               <th>Event Name</th>
-              <th>Category</th>
-              <th>Manager</th>
-              <th>Manager Email</th>
-              <th>Created At</th>
+              <th>Fee Paid</th>
+              <th>Joined On</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {events.map((event, index) => (
-              <tr key={event._id}>
+            {joinedEvents.map((item, index) => (
+              <tr key={item._id}>
                 <th>{index + 1}</th>
-                <td>{event.eventName}</td>
-                <td>{event.eventCategory}</td>
-                <td>{event.eventCreator.name}</td>
-                <td>{event.eventCreator.email}</td>
-                <td>{new Date(event.createdAt).toLocaleString()}</td>
+                <td>{item.eventName}</td>
+                <td>${item.fee}</td>
+                <td>{new Date(item.joinDate).toLocaleDateString()}</td>
+                <td>{item.status}</td>
                 <td className="space-x-2">
-                  <button className="btn btn-square hover:bg-primary hover:text-white">
-                    <FaEdit />
-                  </button>
-                  <button className="btn btn-square hover:bg-primary hover:text-white">
-                    <FaEye />
-                  </button>
-                  <button
-                    onClick={() => handleEventDelete(event._id)}
+                  {/* View Event Details link */}
+                  <Link
+                    to={`/events/${item.eventId}`}
                     className="btn btn-square hover:bg-primary hover:text-white"
                   >
-                    <FaTrash />
-                  </button>
+                    <FaEye />
+                  </Link>
+                  {/* Since this is a list of JOINED events, typically you don't delete them here.
+                      If you need to un-join, a different API and button would be needed.
+                      I am removing FaEdit and FaTrash for simplicity here. */}
                 </td>
               </tr>
             ))}
