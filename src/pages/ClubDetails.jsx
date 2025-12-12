@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAuth from "../hooks/useAuth";
 import Swal from "sweetalert2";
+import Loader from "../components/Loader";
 
 const ClubDetails = () => {
   const { id } = useParams();
@@ -53,15 +54,31 @@ const ClubDetails = () => {
         try {
           await user.getIdToken(true);
 
+          // Record Membership (Existing Logic)
           await axiosSecure.post("/memberships", {
             clubId: club._id,
             clubName: club.clubName,
             clubFee: club.membershipFee,
           });
+
+          // 🚀 FIX: পেমেন্ট রেকর্ড সেভ করা
+          const transactionIdFromUrl =
+            query.get("session_id") || `TID_CLUB_${Date.now()}`; // যদি Stripe session ID URL এ থাকে, সেটি ব্যবহার করুন
+          const paymentRecord = {
+            amount: club.membershipFee,
+            transactionId: transactionIdFromUrl,
+            clubId: club._id,
+            clubName: club.clubName,
+            paymentType: "Membership Fee",
+          };
+
+          await axiosSecure.post("/payments", paymentRecord);
+          // 🚀 END FIX
+
           refetchMembershipStatus();
           Swal.fire({
             title: "Membership Purchased!",
-            text: "Your Club Membership has been activated and added to 'My Clubs'.",
+            text: "Your Club Membership has been activated and your payment recorded.",
             icon: "success",
             confirmButtonText: "OK",
           });
@@ -78,7 +95,7 @@ const ClubDetails = () => {
           } else {
             Swal.fire({
               title: "Error!",
-              text: "An error occurred while confirming membership. Please contact support.",
+              text: "An error occurred while confirming membership/payment history. Please contact support.",
               icon: "error",
             });
           }
@@ -115,45 +132,35 @@ const ClubDetails = () => {
   };
 
   if (isLoadingClub || isLoadingMembership) {
-    return (
-      <div className="py-20 text-center text-lg font-medium">
-        Loading club details...{" "}
-      </div>
-    );
+    return <Loader />;
   }
 
   return (
     <div className="my-10">
-      {" "}
       <div className="container mx-auto px-4">
-        {" "}
         <div className="grid md:grid-cols-2 gap-8 items-start">
-          {" "}
           <figure>
-            {" "}
             <img
               src={club.bannerImage}
               alt={club.clubName}
               className="w-full rounded-lg shadow"
-            />{" "}
-          </figure>{" "}
+            />
+          </figure>
           <div className="space-y-4">
-            {" "}
             <h2 className="text-3xl font-semibold">{club.clubName}</h2>
-            <p className="text-gray-700">{club.description}</p>{" "}
+            <p className="text-gray-700">{club.description}</p>
             <p>
               <span className="font-semibold">Category: </span>
-              {club.category}{" "}
-            </p>{" "}
+              {club.category}
+            </p>
             <p>
               <span className="font-semibold">Location: </span>
-              {club.location}{" "}
-            </p>{" "}
+              {club.location}
+            </p>
             <p>
-              {" "}
-              <span className="font-semibold">Membership Fee: </span>$
-              {club.membershipFee}{" "}
-            </p>{" "}
+              <span className="font-semibold">Membership Fee: </span>BDT.
+              {club.membershipFee}
+            </p>
             <p
               className={`font-semibold ${
                 club.status === "approved"
@@ -163,8 +170,8 @@ const ClubDetails = () => {
                   : "text-red-600"
               }`}
             >
-              Status: {club.status}{" "}
-            </p>{" "}
+              Status: {club.status}
+            </p>
             <button
               disabled={isMember}
               onClick={() => setIsModalOpen(true)}
@@ -172,53 +179,50 @@ const ClubDetails = () => {
                 isMember ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {isMember ? "Membership Active" : "Buy Membership"}{" "}
-            </button>{" "}
-          </div>{" "}
-        </div>{" "}
-      </div>{" "}
+              {isMember ? "Membership Active" : "Buy Membership"}
+            </button>
+          </div>
+        </div>
+      </div>
       {isModalOpen && !isMember && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          {" "}
           <div className="bg-white rounded-xl w-full max-w-lg p-6 shadow-lg relative">
-            {" "}
             <h3 className="text-xl font-bold mb-4">
-              Review Membership Details{" "}
-            </h3>{" "}
+              Review Membership Details
+            </h3>
             <p>
-              <strong>Club:</strong> {club.clubName}{" "}
-            </p>{" "}
+              <strong>Club:</strong> {club.clubName}
+            </p>
             <p>
-              <strong>Location:</strong> {club.location}{" "}
-            </p>{" "}
+              <strong>Location:</strong> {club.location}
+            </p>
             <p>
-              <strong>Membership Fee:</strong> ${club.membershipFee}{" "}
-            </p>{" "}
+              <strong>Membership Fee:</strong> BDT.{club.membershipFee}
+            </p>
             <div className="mt-4 p-3 border rounded bg-gray-50">
-              <p className="font-semibold">User:</p> <p>{user?.displayName}</p>{" "}
-              <p className="text-sm text-gray-600">{user?.email}</p>{" "}
-            </div>{" "}
+              <p className="font-semibold">User:</p> <p>{user?.displayName}</p>
+              <p className="text-sm text-gray-600">{user?.email}</p>
+            </div>
             <div className="flex justify-end gap-3 mt-6">
-              {" "}
               <button
                 className="btn btn-secondary"
                 onClick={() => setIsModalOpen(false)}
               >
-                Cancel{" "}
-              </button>{" "}
+                Cancel
+              </button>
               <button className="btn btn-primary" onClick={handlePayNow}>
-                Proceed to Payment{" "}
-              </button>{" "}
-            </div>{" "}
+                Proceed to Payment
+              </button>
+            </div>
             <button
               className="absolute top-3 right-3 text-gray-600 text-xl"
               onClick={() => setIsModalOpen(false)}
             >
-              &times;{" "}
-            </button>{" "}
-          </div>{" "}
+              &times;
+            </button>
+          </div>
         </div>
-      )}{" "}
+      )}
     </div>
   );
 };

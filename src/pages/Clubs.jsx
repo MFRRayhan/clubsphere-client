@@ -53,7 +53,7 @@ const Clubs = () => {
               </p>
 
               <p className="text-sm">
-                <span className="font-medium">Membership Fee:</span> $
+                <span className="font-medium">Membership Fee:</span> BDT.
                 {club.membershipFee}
               </p>
 

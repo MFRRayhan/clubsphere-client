@@ -61,21 +61,37 @@ const EventsDetails = () => {
           // টোকেন রিফ্রেশ করার জন্য ফোর্স করুন যাতে axiosSecure আপডেট হয়
           await user.getIdToken(true);
 
+          const eventFee = event.isPaid ? event.eventFee : 0;
+
           const participationData = {
             eventId: event._id,
             eventName: event.eventName,
-            eventFee: event.isPaid ? event.eventFee : 0,
+            eventFee: eventFee,
           };
 
-          // Record participation in backend
+          // Record participation in backend (Existing Logic)
           await axiosSecure.post("/event-participants", participationData);
+
+          // 🚀 FIX: পেমেন্ট রেকর্ড সেভ করা
+          const transactionIdFromUrl =
+            query.get("session_id") || `TID_EVENT_${Date.now()}`; // যদি Stripe session ID URL এ থাকে, সেটি ব্যবহার করুন
+          const paymentRecord = {
+            amount: eventFee,
+            transactionId: transactionIdFromUrl,
+            eventId: event._id,
+            eventName: event.eventName,
+            paymentType: "Event Fee",
+          };
+
+          await axiosSecure.post("/payments", paymentRecord);
+          // 🚀 END FIX
 
           // After successful record, refetch status and show success alert
           refetchParticipationStatus();
 
           Swal.fire({
             title: "Payment Successful!",
-            text: "Thanks for joining the event.",
+            text: "Thanks for joining the event. Your payment has been recorded.",
             icon: "success",
             confirmButtonText: "OK",
           });
@@ -83,7 +99,7 @@ const EventsDetails = () => {
           console.error("Error creating event participation:", error);
           Swal.fire({
             title: "Error!",
-            text: "Payment was successful but recording participation failed. Please contact support.",
+            text: "Payment was successful but recording participation/history failed. Please contact support.",
             icon: "error",
             confirmButtonText: "OK",
           });
@@ -98,7 +114,7 @@ const EventsDetails = () => {
     participationStatus.isParticipant,
     refetchParticipationStatus,
     axiosSecure,
-    user, // user dependency যোগ করা হয়েছে
+    user,
   ]);
 
   // Redirect to Stripe Checkout
@@ -164,7 +180,9 @@ const EventsDetails = () => {
 
                 <div>
                   <p className="font-semibold">Event Type</p>
-                  <p>{event.isPaid ? `Paid ($${event.eventFee})` : "Free"}</p>
+                  <p>
+                    {event.isPaid ? `Paid (BDT.${event.eventFee})` : "Free"}
+                  </p>
                 </div>
 
                 <div>
