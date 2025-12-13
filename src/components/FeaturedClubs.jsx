@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
+import { FaLocationDot } from "react-icons/fa6";
 
 const FeaturedClubs = () => {
   const axiosSecure = useAxiosSecure();
@@ -51,20 +52,16 @@ const FeaturedClubs = () => {
                 </p>
 
                 <div className="text-sm text-gray-700 space-y-1">
-                  <p>
-                    <span className="font-medium">📍 Location:</span>{" "}
+                  <p className="flex gap-1 items-center">
+                    <FaLocationDot />
                     {club.location}
-                  </p>
-                  <p>
-                    <span className="font-medium">💳 Fee:</span> ৳
-                    {club.membershipFee}
                   </p>
                 </div>
 
                 {/* Button */}
                 <Link
                   to={`/clubs/${club._id}`}
-                  className="btn btn-primary btn-sm w-full mt-4"
+                  className="btn btn-primary w-full mt-4"
                 >
                   View Details
                 </Link>
