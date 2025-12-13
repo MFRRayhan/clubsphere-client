@@ -1,40 +1,66 @@
-// components/HowItWorks.jsx
 import React from "react";
 import { motion } from "framer-motion";
 
 const steps = [
   {
+    step: "01",
     title: "Discover Clubs",
-    description: "Find clubs that match your interests.",
+    description:
+      "Explore a wide range of clubs based on your interests, location, and activities.",
   },
   {
+    step: "02",
     title: "Join Easily",
-    description: "Sign up and become a member in minutes.",
+    description:
+      "Become a member with a simple signup process and secure payments.",
   },
   {
-    title: "Engage & Share",
-    description: "Participate in events and meet like-minded people.",
+    step: "03",
+    title: "Engage & Grow",
+    description:
+      "Attend events, connect with members, and grow your community experience.",
   },
 ];
 
 const HowItWorks = () => {
   return (
-    <section className="container mx-auto px-4 text-center py-16">
-      <h2 className="text-3xl font-bold mb-10">How ClubSphere Works</h2>
-      <div className="grid md:grid-cols-3 gap-8">
-        {steps.map((step, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: idx * 0.2 }}
-            className="p-6 bg-base-100 rounded-lg shadow-lg"
-          >
-            <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-            <p className="text-gray-600">{step.description}</p>
-          </motion.div>
-        ))}
+    <section className="bg-base-200 py-20">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <h2 className="text-4xl font-bold mb-4">
+            How <span className="text-primary">ClubSphere</span> Works
+          </h2>
+          <p className="text-base-content/70">
+            Getting started is simple. Follow these steps to become part of an
+            active club community.
+          </p>
+        </div>
+
+        {/* Steps */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {steps.map((step, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: idx * 0.15 }}
+              whileHover={{ y: -6 }}
+              className="bg-base-100 rounded-2xl p-8 shadow-md hover:shadow-xl transition-all"
+            >
+              {/* Step Number */}
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-primary text-primary-content font-bold mb-6">
+                {step.step}
+              </div>
+
+              <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
+              <p className="text-base-content/70 leading-relaxed">
+                {step.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
