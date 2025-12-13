@@ -23,6 +23,7 @@ import PaymentHistory from "../pages/dashboard/PaymentHistory";
 import BeAManager from "../pages/dashboard/BeAManager";
 import MyClubs from "../pages/dashboard/MyClubs";
 import MyEvents from "../pages/dashboard/MyEvents";
+import MyManagedClubs from "../pages/dashboard/MyManagedClubs";
 
 export const router = createBrowserRouter([
   {
@@ -82,6 +83,10 @@ export const router = createBrowserRouter([
       {
         path: "my-clubs",
         Component: MyClubs,
+      },
+      {
+        path: "my-managed-clubs",
+        Component: MyManagedClubs,
       },
       {
         path: "my-events",

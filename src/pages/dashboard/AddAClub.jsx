@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import Swal from "sweetalert2";
 import useAuth from "../../hooks/useAuth";
 import { imgUpload } from "../../utils";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
@@ -7,6 +8,8 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 const AddAClub = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
+
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -17,12 +20,14 @@ const AddAClub = () => {
 
   const handleClubForm = async (data) => {
     try {
+      setLoading(true);
+
       const bannerFile = data.bannerImage[0];
 
-      // 1. Upload image to ImgBB
+      // 1. Upload banner
       const imgUrl = await imgUpload(bannerFile);
 
-      // 2. Prepare club object
+      // 2. Prepare club data
       const clubInfo = {
         clubName: data.clubName,
         description: data.description,
@@ -36,32 +41,52 @@ const AddAClub = () => {
         updatedAt: new Date().toISOString(),
       };
 
-      // 3. Save to database
+      // 3. Save to DB
       const res = await axiosSecure.post("/clubs", clubInfo);
 
-      console.log("Club created:", res.data);
-
-      // 4. Reset form on success
-      reset();
+      if (res.data.insertedId) {
+        Swal.fire({
+          title: "Club Submitted!",
+          text: "Your club is awaiting admin approval.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+        reset();
+      } else {
+        Swal.fire({
+          title: "Submission Failed!",
+          text: "Please try again.",
+          icon: "error",
+        });
+      }
     } catch (err) {
       console.log("Error creating club:", err);
+      Swal.fire({
+        title: "Something went wrong!",
+        text: "Please try again.",
+        icon: "error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
+    <div className="max-w-xl mx-auto p-6">
+      <h2 className="text-2xl font-semibold mb-4">Create a New Club</h2>
+
       <form onSubmit={handleSubmit(handleClubForm)}>
         {/* Club Name */}
         <fieldset className="fieldset">
           <label className="label">Club Name</label>
           <input
             type="text"
-            className="input"
+            className="input w-full"
             placeholder="Enter club name"
             {...register("clubName", { required: true })}
           />
           {errors.clubName && (
-            <p className="text-red-500">Club name is required</p>
+            <p className="text-red-500 text-sm mt-1">Club name is required.</p>
           )}
         </fieldset>
 
@@ -69,12 +94,14 @@ const AddAClub = () => {
         <fieldset className="fieldset">
           <label className="label">Description</label>
           <textarea
-            className="textarea"
+            className="textarea w-full"
             placeholder="Write a short description"
             {...register("description", { required: true })}
           ></textarea>
           {errors.description && (
-            <p className="text-red-500">Description is required</p>
+            <p className="text-red-500 text-sm mt-1">
+              Description is required.
+            </p>
           )}
         </fieldset>
 
@@ -82,7 +109,7 @@ const AddAClub = () => {
         <fieldset className="fieldset">
           <label className="label">Category</label>
           <select
-            className="select"
+            className="select w-full"
             defaultValue="Pick a Category"
             {...register("category", { required: true })}
           >
@@ -95,7 +122,7 @@ const AddAClub = () => {
             <option>Others</option>
           </select>
           {errors.category && (
-            <p className="text-red-500">Category is required</p>
+            <p className="text-red-500 text-sm mt-1">Category is required.</p>
           )}
         </fieldset>
 
@@ -104,12 +131,12 @@ const AddAClub = () => {
           <label className="label">Location (City/Area)</label>
           <input
             type="text"
-            className="input"
+            className="input w-full"
             placeholder="Area, City"
             {...register("location", { required: true })}
           />
           {errors.location && (
-            <p className="text-red-500">Location is required</p>
+            <p className="text-red-500 text-sm mt-1">Location is required.</p>
           )}
         </fieldset>
 
@@ -118,7 +145,7 @@ const AddAClub = () => {
           <label className="label">Membership Fee</label>
           <input
             type="number"
-            className="input"
+            className="input w-full"
             placeholder="0 for free"
             {...register("membershipFee")}
           />
@@ -129,15 +156,19 @@ const AddAClub = () => {
           <label className="label">Club Banner</label>
           <input
             type="file"
-            className="file-input"
+            className="file-input w-full"
             {...register("bannerImage", { required: true })}
           />
           {errors.bannerImage && (
-            <p className="text-red-500">Banner image is required</p>
+            <p className="text-red-500 text-sm mt-1">
+              Banner image is required.
+            </p>
           )}
         </fieldset>
 
-        <button className="btn btn-neutral mt-4">Create Club</button>
+        <button className="btn btn-neutral mt-4 w-full" disabled={loading}>
+          {loading ? "Creating..." : "Create Club"}
+        </button>
       </form>
     </div>
   );
