@@ -8,6 +8,10 @@
   --color-secondary: #333;
 } */
 
+button:disabled {
+  @apply bg-primary text-white;
+}
+
 /* CLUBSPHERE CSS */
 .primary-menu a {
   @apply px-4 py-2 text-gray-700 hover:bg-gray-200 rounded;

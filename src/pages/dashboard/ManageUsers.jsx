@@ -3,7 +3,7 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import useRole from "../../hooks/useRole";
 import { FaSearch, FaUserShield, FaUserEdit, FaEye } from "react-icons/fa";
-import { BsFillShieldSlashFill, BsTrash } from "react-icons/bs";
+import { BsTrash } from "react-icons/bs";
 import Swal from "sweetalert2";
 import Loader from "../../components/Loader";
 
@@ -12,6 +12,7 @@ const ManageUsers = () => {
   const { role, isLoading } = useRole();
   const [searchText, setSearchText] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
+
   const { refetch, data: users = [] } = useQuery({
     queryKey: ["users", searchText],
     queryFn: async () => {
@@ -21,15 +22,13 @@ const ManageUsers = () => {
   });
 
   if (isLoading) return <Loader />;
-  if (role !== "admin") {
+  if (role !== "admin")
     return (
       <div className="text-center text-2xl text-red-500 py-10">
         Access Denied: Only Admin Can Manage Users
       </div>
     );
-  }
 
-  // CHANGE ROLE
   const handleChangeRole = (user, newRole) => {
     Swal.fire({
       title: "Are you sure?",
@@ -55,7 +54,6 @@ const ManageUsers = () => {
     });
   };
 
-  // DELETE USER
   const handleDelete = (user) => {
     Swal.fire({
       title: "Delete User?",
@@ -77,32 +75,32 @@ const ManageUsers = () => {
   };
 
   const roleBadge = (role) => {
-    if (role === "admin") return "badge-success";
-    if (role === "clubManager") return "badge-warning";
-    return "badge-info"; // member
+    if (role === "admin") return "bg-green-500";
+    if (role === "clubManager") return "bg-yellow-500";
+    return "bg-blue-500"; // member
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <h2 className="text-4xl font-semibold text-secondary mb-4">
-          Manage Users
-        </h2>
-
-        <label className="input">
-          <FaSearch />
+    <div className="py-10 max-w-7xl mx-auto px-4">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <h2 className="text-4xl font-bold text-primary">Manage Users</h2>
+        <div className="flex items-center gap-2 w-full md:w-1/3 bg-white border rounded-lg shadow px-3 py-2">
+          <FaSearch className="text-gray-400" />
           <input
-            onChange={(e) => setSearchText(e.target.value)}
             type="search"
-            className="grow"
             placeholder="Search User"
+            className="w-full outline-none"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
           />
-        </label>
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="table">
-          <thead>
+      {/* Users Table */}
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="table w-full">
+          <thead className="bg-gray-100">
             <tr>
               <th>Index</th>
               <th>Name</th>
@@ -111,53 +109,49 @@ const ManageUsers = () => {
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody>
             {users.map((user, index) => (
-              <tr key={user._id}>
+              <tr key={user._id} className="hover:bg-gray-50">
                 <td>{index + 1}</td>
-
                 <td>
                   <div className="flex items-center gap-3">
-                    <div className="avatar">
-                      <div className="mask mask-circle h-12 w-12">
-                        <img src={user.photoURL} alt="User Avatar" />
-                      </div>
-                    </div>
+                    <img
+                      src={user.photoURL}
+                      alt="avatar"
+                      className="w-12 h-12 rounded-full border"
+                    />
                     <div>
-                      <div className="font-bold">{user.displayName}</div>
-                      <div className="text-sm opacity-50">{user.district}</div>
+                      <div className="font-semibold">{user.displayName}</div>
+                      <div className="text-sm text-gray-500">
+                        {user.district}
+                      </div>
                     </div>
                   </div>
                 </td>
-
                 <td>{user.email}</td>
-
                 <td>
                   <span
-                    className={`badge text-white capitalize ${roleBadge(
+                    className={`text-white capitalize px-3 py-1 rounded-full text-sm ${roleBadge(
                       user.role
                     )}`}
                   >
                     {user.role}
                   </span>
                 </td>
-
-                <td className="flex gap-2">
-                  {/* VIEW USER */}
+                <td className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setSelectedUser(user)}
-                    className="btn btn-sm btn-primary text-white"
+                    className="btn btn-sm btn-primary text-white flex items-center gap-1"
                   >
                     <FaEye />
+                    View
                   </button>
 
-                  {/* CHANGE ROLE BUTTONS */}
                   {user.role !== "admin" && (
                     <>
                       <button
                         onClick={() => handleChangeRole(user, "admin")}
-                        className="btn btn-sm btn-info text-white"
+                        className="btn btn-sm btn-success text-white"
                       >
                         Make Admin
                       </button>
@@ -173,13 +167,12 @@ const ManageUsers = () => {
                   {user.role === "admin" && (
                     <button
                       onClick={() => handleChangeRole(user, "member")}
-                      className="btn btn-sm btn-warning text-white"
+                      className="btn btn-sm btn-info text-white"
                     >
                       Remove Admin
                     </button>
                   )}
 
-                  {/* DELETE USER */}
                   <button
                     onClick={() => handleDelete(user)}
                     className="btn btn-sm btn-error text-white"
@@ -193,39 +186,49 @@ const ManageUsers = () => {
         </table>
       </div>
 
-      {/* USER DETAILS MODAL */}
+      {/* User Modal */}
       {selectedUser && (
-        <dialog id="user_modal" className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-2xl mb-3">User Details</h3>
-
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
+            <button
+              className="absolute top-3 right-3 text-gray-600 text-2xl hover:text-gray-800 transition"
+              onClick={() => setSelectedUser(null)}
+            >
+              &times;
+            </button>
+            <h3 className="text-2xl font-bold mb-4 text-center">
+              User Details
+            </h3>
             <img
               src={selectedUser.photoURL}
-              className="w-24 h-24 rounded-full mx-auto mb-4"
               alt="avatar"
+              className="w-24 h-24 rounded-full mx-auto mb-4"
             />
-
-            <p>
-              <strong>Name:</strong> {selectedUser.displayName}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedUser.email}
-            </p>
-            <p>
-              <strong>Role:</strong> {selectedUser.role}
-            </p>
-            <p>
-              <strong>Joined:</strong>{" "}
-              {new Date(selectedUser.createdAt).toLocaleDateString()}
-            </p>
-
-            <div className="modal-action">
-              <button className="btn" onClick={() => setSelectedUser(null)}>
+            <div className="space-y-2 text-gray-700 text-center">
+              <p>
+                <strong>Name:</strong> {selectedUser.displayName}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedUser.email}
+              </p>
+              <p className="capitalize">
+                <strong>Role:</strong> {selectedUser.role}
+              </p>
+              <p>
+                <strong>Joined:</strong>{" "}
+                {new Date(selectedUser.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="btn btn-primary"
+              >
                 Close
               </button>
             </div>
           </div>
-        </dialog>
+        </div>
       )}
     </div>
   );

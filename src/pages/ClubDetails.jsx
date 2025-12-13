@@ -142,10 +142,6 @@ const ClubDetails = () => {
             <div>
               <h2 className="text-3xl font-bold mb-2">{club.clubName}</h2>
               <p className="text-gray-700 mb-3">{club.description}</p>
-              <p className="flex items-center gap-2">
-                <FaBuilding className="text-blue-500" />
-                <strong>Club:</strong> {club.clubName}
-              </p>
 
               <p className="flex items-center gap-2">
                 <FaMapMarkerAlt className="text-red-500" />
@@ -162,7 +158,7 @@ const ClubDetails = () => {
               disabled={isMember}
               onClick={() => setIsModalOpen(true)}
               className={`btn btn-primary mt-4 ${
-                isMember ? "opacity-50 cursor-not-allowed" : ""
+                isMember ? "cursor-not-allowed" : ""
               }`}
             >
               {isMember ? "Membership Active" : "Buy Membership"}

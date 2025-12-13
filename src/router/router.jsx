@@ -40,7 +40,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "clubs/:id",
-        Component: ClubDetails,
+        element: (
+          <PrivateRoute>
+            <ClubDetails />
+          </PrivateRoute>
+        ),
       },
       {
         path: "events",

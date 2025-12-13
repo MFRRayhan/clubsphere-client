@@ -32,9 +32,6 @@ const Dashboard = () => {
       <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         {/* Navbar */}
-        <Link to="/" className="text-3xl font-bold text-primary m-4">
-          ClubSphere
-        </Link>
         <nav className="navbar w-full bg-base-300">
           <label
             htmlFor="my-drawer-4"
@@ -57,7 +54,12 @@ const Dashboard = () => {
               <path d="M14 10l2 2l-2 2"></path>
             </svg>
           </label>
-          <div className="px-4 font-semibold text-lg">ClubSphere Dashboard</div>
+          <Link to="/" className="text-4xl font-bold text-primary m-4">
+            ClubSphere{" "}
+            <span className="text-lg text-gray-700 font-semibold">
+              Dashboard
+            </span>
+          </Link>
         </nav>
         {/* Page content here */}
         <div className="p-4">

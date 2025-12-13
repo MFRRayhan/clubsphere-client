@@ -42,7 +42,7 @@ const HeroSection = () => {
             <motion.button
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.95 }}
-              className="btn btn-secondary text-primary font-semibold px-8"
+              className="btn btn-secondary text-white font-semibold px-8"
             >
               Explore Clubs
             </motion.button>

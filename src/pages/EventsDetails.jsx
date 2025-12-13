@@ -5,6 +5,13 @@ import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAuth from "../hooks/useAuth";
 import Swal from "sweetalert2";
 import Loader from "../components/Loader";
+import {
+  FaMapMarkerAlt,
+  FaMoneyBillWave,
+  FaCalendarAlt,
+  FaTags,
+  FaBuilding,
+} from "react-icons/fa";
 
 const EventsDetails = () => {
   const { id } = useParams();
@@ -14,7 +21,7 @@ const EventsDetails = () => {
   const { user } = useAuth();
   const [isJoining, setIsJoining] = useState(false);
 
-  // Fetch Event Details
+  // Fetch Event
   const { data: event, isLoading: isLoadingEvent } = useQuery({
     queryKey: ["event", id],
     queryFn: async () => {
@@ -23,7 +30,7 @@ const EventsDetails = () => {
     },
   });
 
-  // Fetch Participation Status
+  // Participation Status
   const {
     data: participationStatus = { isParticipant: false },
     refetch: refetchParticipationStatus,
@@ -40,7 +47,7 @@ const EventsDetails = () => {
 
   const isAlreadyJoined = participationStatus.isParticipant;
 
-  // Detect Stripe Success URL
+  // Stripe success detection
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const paymentSuccess = query.get("payment") === "success";
@@ -49,23 +56,19 @@ const EventsDetails = () => {
     if (paymentSuccess && event && user && !isAlreadyJoined) {
       const recordParticipation = async () => {
         try {
-          // Record participation
-          const participationData = {
+          await axiosSecure.post("/event-participants", {
             eventId: event._id,
             eventName: event.eventName,
             eventFee: event.eventFee,
-          };
-          await axiosSecure.post("/event-participants", participationData);
+          });
 
-          // Record payment
-          const paymentData = {
+          await axiosSecure.post("/payments", {
             transactionId: sessionId || `TID_${Date.now()}`,
             amount: event.eventFee,
             eventId: event._id,
             eventName: event.eventName,
             paymentType: "Event Fee",
-          };
-          await axiosSecure.post("/payments", paymentData);
+          });
 
           await refetchParticipationStatus();
 
@@ -75,10 +78,8 @@ const EventsDetails = () => {
             icon: "success",
           });
 
-          // Remove query params from URL
           navigate(`/events/${id}`, { replace: true });
         } catch (err) {
-          console.error(err);
           Swal.fire({
             title: "Error!",
             text: "Payment was successful but recording participation failed.",
@@ -86,21 +87,19 @@ const EventsDetails = () => {
           });
         }
       };
-
       recordParticipation();
     }
   }, [
     location.search,
     event,
     user,
-    id,
     isAlreadyJoined,
     axiosSecure,
     refetchParticipationStatus,
     navigate,
+    id,
   ]);
 
-  // Join Free or Paid Event
   const handleJoinEvent = async () => {
     if (!event || !user) return;
 
@@ -111,7 +110,7 @@ const EventsDetails = () => {
           user,
         });
         window.location.href = data.url;
-      } catch (error) {
+      } catch {
         Swal.fire({
           title: "Payment Failed",
           text: "Something went wrong.",
@@ -121,24 +120,21 @@ const EventsDetails = () => {
     } else {
       try {
         setIsJoining(true);
-        const participationData = {
+        await axiosSecure.post("/event-participants", {
           eventId: event._id,
           eventName: event.eventName,
           eventFee: 0,
-        };
-        await axiosSecure.post("/event-participants", participationData);
+        });
         await refetchParticipationStatus();
-
         Swal.fire({
           title: "Joined Successfully",
-          text: "You have successfully joined this free event.",
+          text: "You have joined this free event.",
           icon: "success",
         });
-      } catch (error) {
-        console.error(error);
+      } catch {
         Swal.fire({
           title: "Error",
-          text: "Failed to join event. Please try again.",
+          text: "Failed to join event.",
           icon: "error",
         });
       } finally {
@@ -147,93 +143,72 @@ const EventsDetails = () => {
     }
   };
 
-  if (isLoadingEvent || isLoadingParticipation) {
-    return (
-      <div className="py-20 text-center text-lg font-medium">
-        <Loader />
-      </div>
-    );
-  }
+  if (isLoadingEvent || isLoadingParticipation) return <Loader />;
 
   return (
-    <div className="my-10 container mx-auto px-4">
-      <div className="grid md:grid-cols-2 gap-10">
-        <div className="relative rounded-xl overflow-hidden shadow-lg">
-          <img
-            src={event.eventBanner}
-            alt={event.eventName}
-            className="w-full h-[400px] object-cover"
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/60 to-transparent p-4">
-            <h2 className="text-3xl text-white font-bold">{event.eventName}</h2>
-            <p className="text-white">
-              {new Date(event.eventDate).toLocaleDateString()} |{" "}
-              {event.location}
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="p-6 bg-white shadow rounded-xl border">
-            <h3 className="text-xl font-semibold mb-4">Event Details</h3>
-            <p className="text-gray-700 mb-2">{event.eventDescription}</p>
-
-            <div className="grid grid-cols-2 gap-4 text-gray-800 mt-4">
-              <div>
-                <p className="font-semibold">Category</p>
-                <p>{event.eventCategory}</p>
-              </div>
-              <div>
-                <p className="font-semibold">Event Type</p>
-                <p>{event.isPaid ? `Paid (BDT.${event.eventFee})` : "Free"}</p>
-              </div>
-              <div>
-                <p className="font-semibold">Location</p>
-                <p>{event.location}</p>
-              </div>
-              <div>
-                <p className="font-semibold">Max Attendees</p>
-                <p>{event.maxAttendees || "Unlimited"}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 p-4 border rounded-xl bg-gray-50 shadow-sm">
+    <section className="py-16 bg-base-100">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid md:grid-cols-2 gap-8 items-center bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+          {/* Event Image */}
+          <figure className="rounded overflow-hidden shadow-sm h-[400px]">
             <img
-              src={event.eventCreator?.image}
-              alt={event.eventCreator?.name}
-              className="w-16 h-16 rounded-full border"
+              src={event.eventBanner}
+              alt={event.eventName}
+              className="w-full h-full object-cover rounded"
             />
+          </figure>
+
+          {/* Event Content */}
+          <div className="flex flex-col justify-between space-y-4">
             <div>
-              <p className="text-lg font-semibold">
-                {event.eventCreator?.name}
+              <h2 className="text-3xl font-bold mb-2">{event.eventName}</h2>
+              <p className="text-gray-700 mb-4">{event.eventDescription}</p>
+
+              <p className="flex items-center gap-2 text-gray-800">
+                <FaCalendarAlt className="text-blue-500" />
+                <strong>Date:</strong>{" "}
+                {new Date(event.eventDate).toLocaleDateString()}
               </p>
-              <p className="text-sm text-gray-600">
-                {event.eventCreator?.email}
+              <p className="flex items-center gap-2 text-gray-800">
+                <FaMapMarkerAlt className="text-red-500" />
+                <strong>Location:</strong> {event.location}
+              </p>
+              <p className="flex items-center gap-2 text-gray-800">
+                <FaMoneyBillWave className="text-green-500" />
+                <strong>Fee:</strong>{" "}
+                {event.isPaid ? `BDT. ${event.eventFee}` : "Free"}
+              </p>
+              <p className="flex items-center gap-2 text-gray-800">
+                <FaTags />
+                <strong>Category:</strong> {event.eventCategory}
+              </p>
+              <p className="flex gap-1 items-center">
+                <FaBuilding />
+                <b>Hosted By: </b>
+                {event.clubName}
               </p>
             </div>
-          </div>
 
-          <button
-            disabled={isAlreadyJoined || isJoining}
-            onClick={handleJoinEvent}
-            className={`btn btn-primary w-full py-3 text-lg font-semibold ${
-              isAlreadyJoined || isJoining
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
-          >
-            {isAlreadyJoined
-              ? "Joined"
-              : event.isPaid
-              ? "Pay Now"
-              : isJoining
-              ? "Joining..."
-              : "Join Now"}
-          </button>
+            {/* Join Button */}
+            <button
+              disabled={isAlreadyJoined || isJoining}
+              onClick={handleJoinEvent}
+              className={`btn btn-primary w-full py-3 text-lg font-semibold ${
+                isAlreadyJoined || isJoining ? "cursor-not-allowed" : ""
+              }`}
+            >
+              {isAlreadyJoined
+                ? "Joined"
+                : event.isPaid
+                ? "Pay Now"
+                : isJoining
+                ? "Joining..."
+                : "Join Now"}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
 import Loader from "../components/Loader";
 import { FaBuilding, FaLocationDot } from "react-icons/fa6";
+import { FaCalendar, FaCalendarAlt } from "react-icons/fa";
 
 const Events = () => {
   const axiosSecure = useAxiosSecure();
@@ -25,7 +26,7 @@ const Events = () => {
       <section className="px-6 py-16 bg-base-100">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
-            Explore Events
+            Upcoming Events
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -64,6 +65,11 @@ const Events = () => {
                       <FaBuilding />
                       <b>Hosted By: </b>
                       {event.clubName}
+                    </p>
+                    <p className="flex gap-1 items-center">
+                      <FaCalendar />
+                      <b>Event Date: </b>
+                      {event.eventDate}
                     </p>
                   </div>
 
