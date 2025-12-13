@@ -119,8 +119,10 @@ const MyEvents = () => {
                   )}
                 </td>
 
-                <td>{new Date(item.joinDate).toLocaleDateString()}</td>
-                <td>{item.status}</td>
+                <td>{new Date(item.joinDate).toLocaleString()}</td>
+                <td className="capitalize">
+                  {item.status === "paid" ? "joined" : `${item.status}`}
+                </td>
                 <td className="space-x-2 flex items-center">
                   <Link
                     to={`/events/${item.eventId}`}

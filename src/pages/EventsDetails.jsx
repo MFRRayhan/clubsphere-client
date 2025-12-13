@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useLocation, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAuth from "../hooks/useAuth";
@@ -8,10 +8,13 @@ import Loader from "../components/Loader";
 
 const EventsDetails = () => {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const [isJoining, setIsJoining] = useState(false);
 
+  // Fetch Event Details
   const { data: event, isLoading: isLoadingEvent } = useQuery({
     queryKey: ["event", id],
     queryFn: async () => {
@@ -20,6 +23,7 @@ const EventsDetails = () => {
     },
   });
 
+  // Fetch Participation Status
   const {
     data: participationStatus = { isParticipant: false },
     refetch: refetchParticipationStatus,
@@ -36,6 +40,67 @@ const EventsDetails = () => {
 
   const isAlreadyJoined = participationStatus.isParticipant;
 
+  // Detect Stripe Success URL
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const paymentSuccess = query.get("payment") === "success";
+    const sessionId = query.get("session_id");
+
+    if (paymentSuccess && event && user && !isAlreadyJoined) {
+      const recordParticipation = async () => {
+        try {
+          // Record participation
+          const participationData = {
+            eventId: event._id,
+            eventName: event.eventName,
+            eventFee: event.eventFee,
+          };
+          await axiosSecure.post("/event-participants", participationData);
+
+          // Record payment
+          const paymentData = {
+            transactionId: sessionId || `TID_${Date.now()}`,
+            amount: event.eventFee,
+            eventId: event._id,
+            eventName: event.eventName,
+            paymentType: "Event Fee",
+          };
+          await axiosSecure.post("/payments", paymentData);
+
+          await refetchParticipationStatus();
+
+          Swal.fire({
+            title: "Payment Successful!",
+            text: "You have successfully joined this event.",
+            icon: "success",
+          });
+
+          // Remove query params from URL
+          navigate(`/events/${id}`, { replace: true });
+        } catch (err) {
+          console.error(err);
+          Swal.fire({
+            title: "Error!",
+            text: "Payment was successful but recording participation failed.",
+            icon: "error",
+          });
+        }
+      };
+
+      recordParticipation();
+    }
+  }, [
+    location.search,
+    event,
+    user,
+    id,
+    isAlreadyJoined,
+    axiosSecure,
+    refetchParticipationStatus,
+    navigate,
+  ]);
+
+  // Join Free or Paid Event
   const handleJoinEvent = async () => {
     if (!event || !user) return;
 
@@ -111,7 +176,7 @@ const EventsDetails = () => {
         <div className="space-y-6">
           <div className="p-6 bg-white shadow rounded-xl border">
             <h3 className="text-xl font-semibold mb-4">Event Details</h3>
-            <p className="text-gray-700 mb-2">{event.description}</p>
+            <p className="text-gray-700 mb-2">{event.eventDescription}</p>
 
             <div className="grid grid-cols-2 gap-4 text-gray-800 mt-4">
               <div>

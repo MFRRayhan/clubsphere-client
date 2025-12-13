@@ -2,8 +2,9 @@ import React from "react";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom"; // Link ইমপোর্ট করা হয়েছে
-import Loader from "../../components/Loader"; // Loader ইমপোর্ট করা হয়েছে
+import { Link } from "react-router-dom";
+import Loader from "../../components/Loader";
+import { FaEye } from "react-icons/fa";
 
 const PaymentHistory = () => {
   const { user } = useAuth();
@@ -12,7 +13,6 @@ const PaymentHistory = () => {
   const { data: payments = [], isLoading } = useQuery({
     queryKey: ["payments", user?.email],
     queryFn: async () => {
-      // 🎯 API Endpoint আপডেট করা হয়েছে
       const res = await axiosSecure.get(`/payments/history`);
       return res.data;
     },
@@ -23,7 +23,6 @@ const PaymentHistory = () => {
     return <Loader />;
   }
 
-  // 🎯 যদি কোনো পেমেন্ট না থাকে তার জন্য বার্তা
   if (payments.length === 0) {
     return (
       <div className="text-center py-20">
@@ -44,7 +43,6 @@ const PaymentHistory = () => {
       </h2>
       <div className="overflow-x-auto rounded-xl shadow-lg border">
         <table className="table w-full bg-white text-center">
-          {/* head */}
           <thead>
             <tr className="bg-gray-100 text-sm uppercase">
               <th>Index</th>
@@ -64,7 +62,6 @@ const PaymentHistory = () => {
               >
                 <th>{index + 1}</th>
                 <td className="font-medium text-purple-600">
-                  {/* clubId বা eventId এর উপর ভিত্তি করে Item Type নির্ধারণ */}
                   {payment.clubId
                     ? "Membership"
                     : payment.eventId
@@ -72,30 +69,28 @@ const PaymentHistory = () => {
                     : "N/A"}
                 </td>
                 <td>
-                  {/* item.clubName বা item.eventName দেখাবে */}
                   {payment.clubName || payment.eventName || "Unknown Item"}
                 </td>
                 <td>
-                  <b>$ </b>
+                  <b>BDT. </b>
                   {payment.amount}
                 </td>
                 <td>{new Date(payment.paidAt).toLocaleDateString()}</td>
                 <td className="text-xs font-mono">{payment.transactionId}</td>
                 <td>
-                  {/* ক্লাব বা ইভেন্টের ডিটেইলস-এ যাওয়ার লিঙ্ক */}
                   {payment.clubId ? (
                     <Link
                       to={`/clubs/${payment.clubId}`}
-                      className="btn btn-sm btn-ghost text-primary hover:bg-primary/10"
+                      className="btn btn-square hover:bg-primary hover:text-white"
                     >
-                      View Club
+                      <FaEye />
                     </Link>
                   ) : payment.eventId ? (
                     <Link
                       to={`/events/${payment.eventId}`}
-                      className="btn btn-sm btn-ghost text-primary hover:bg-primary/10"
+                      className="btn btn-square hover:bg-primary hover:text-white"
                     >
-                      View Event
+                      <FaEye />
                     </Link>
                   ) : (
                     "N/A"
