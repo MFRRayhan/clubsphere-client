@@ -5,6 +5,7 @@ import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAuth from "../hooks/useAuth";
 import Swal from "sweetalert2";
 import Loader from "../components/Loader";
+import { FaBuilding, FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
 
 const ClubDetails = () => {
   const { id } = useParams();
@@ -44,26 +45,19 @@ const ClubDetails = () => {
   useEffect(() => {
     if (isPaymentSuccess && club && !membershipStatus.isMember) {
       const createMembership = async () => {
-        if (!user) {
-          console.error(
-            "User object is null, cannot proceed with token refresh."
-          );
-          return;
-        }
+        if (!user) return;
 
         try {
           await user.getIdToken(true);
 
-          // Record Membership (Existing Logic)
           await axiosSecure.post("/memberships", {
             clubId: club._id,
             clubName: club.clubName,
             clubFee: club.membershipFee,
           });
 
-          // 🚀 FIX: পেমেন্ট রেকর্ড সেভ করা
           const transactionIdFromUrl =
-            query.get("session_id") || `TID_CLUB_${Date.now()}`; // যদি Stripe session ID URL এ থাকে, সেটি ব্যবহার করুন
+            query.get("session_id") || `TID_CLUB_${Date.now()}`;
           const paymentRecord = {
             amount: club.membershipFee,
             transactionId: transactionIdFromUrl,
@@ -73,12 +67,11 @@ const ClubDetails = () => {
           };
 
           await axiosSecure.post("/payments", paymentRecord);
-          // 🚀 END FIX
 
           refetchMembershipStatus();
           Swal.fire({
             title: "Membership Purchased!",
-            text: "Your Club Membership has been activated and your payment recorded.",
+            text: "Your Club Membership has been activated and payment recorded.",
             icon: "success",
             confirmButtonText: "OK",
           });
@@ -88,20 +81,19 @@ const ClubDetails = () => {
           if (check.data.isMember) {
             Swal.fire({
               title: "Membership Purchased!",
-              text: "Membership record failed to confirm immediately, but verification shows you are a member.",
+              text: "Verification shows you are a member.",
               icon: "success",
               confirmButtonText: "OK",
             });
           } else {
             Swal.fire({
               title: "Error!",
-              text: "An error occurred while confirming membership/payment history. Please contact support.",
+              text: "An error occurred. Please contact support.",
               icon: "error",
             });
           }
         }
       };
-
       createMembership();
     }
   }, [
@@ -111,6 +103,7 @@ const ClubDetails = () => {
     refetchMembershipStatus,
     axiosSecure,
     user,
+    query,
   ]);
 
   const handlePayNow = async () => {
@@ -119,10 +112,8 @@ const ClubDetails = () => {
         "/create-club-membership-session",
         { club, user }
       );
-
       window.location.href = data.url;
     } catch (error) {
-      console.log(error);
       Swal.fire({
         title: "Payment Failed!",
         text: "Something went wrong.",
@@ -131,51 +122,46 @@ const ClubDetails = () => {
     }
   };
 
-  if (isLoadingClub || isLoadingMembership) {
-    return <Loader />;
-  }
+  if (isLoadingClub || isLoadingMembership) return <Loader />;
 
   return (
-    <div className="my-10">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-8 items-start">
-          <figure>
+    <section className="py-16 bg-base-100">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid md:grid-cols-2 gap-8 items-center bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+          {/* Club Image */}
+          <figure className="rounded overflow-hidden shadow-sm">
             <img
               src={club.bannerImage}
               alt={club.clubName}
-              className="w-full rounded-lg shadow"
+              className="w-full h-full object-cover rounded"
             />
           </figure>
-          <div className="space-y-4">
-            <h2 className="text-3xl font-semibold">{club.clubName}</h2>
-            <p className="text-gray-700">{club.description}</p>
-            <p>
-              <span className="font-semibold">Category: </span>
-              {club.category}
-            </p>
-            <p>
-              <span className="font-semibold">Location: </span>
-              {club.location}
-            </p>
-            <p>
-              <span className="font-semibold">Membership Fee: </span>BDT.
-              {club.membershipFee}
-            </p>
-            <p
-              className={`font-semibold ${
-                club.status === "approved"
-                  ? "text-green-600"
-                  : club.status === "pending"
-                  ? "text-yellow-600"
-                  : "text-red-600"
-              }`}
-            >
-              Status: {club.status}
-            </p>
+
+          {/* Club Content */}
+          <div className="flex flex-col justify-between space-y-4">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">{club.clubName}</h2>
+              <p className="text-gray-700 mb-3">{club.description}</p>
+              <p className="flex items-center gap-2">
+                <FaBuilding className="text-blue-500" />
+                <strong>Club:</strong> {club.clubName}
+              </p>
+
+              <p className="flex items-center gap-2">
+                <FaMapMarkerAlt className="text-red-500" />
+                <strong>Location:</strong> {club.location}
+              </p>
+
+              <p className="flex items-center gap-2">
+                <FaMoneyBillWave className="text-green-500" />
+                <strong>Fee:</strong> BDT. {club.membershipFee}
+              </p>
+            </div>
+
             <button
               disabled={isMember}
               onClick={() => setIsModalOpen(true)}
-              className={`btn btn-primary ${
+              className={`btn btn-primary mt-4 ${
                 isMember ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -184,24 +170,32 @@ const ClubDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal */}
       {isModalOpen && !isMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl w-full max-w-lg p-6 shadow-lg relative">
-            <h3 className="text-xl font-bold mb-4">
-              Review Membership Details
-            </h3>
-            <p>
-              <strong>Club:</strong> {club.clubName}
-            </p>
-            <p>
-              <strong>Location:</strong> {club.location}
-            </p>
-            <p>
-              <strong>Membership Fee:</strong> BDT.{club.membershipFee}
-            </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-lg p-6 shadow-xl relative">
+            <h3 className="text-2xl font-bold mb-4">Review Membership</h3>
+            <div className="space-y-2">
+              <p className="flex items-center gap-2">
+                <FaBuilding className="text-blue-500" />
+                <strong>Club:</strong> {club.clubName}
+              </p>
+
+              <p className="flex items-center gap-2">
+                <FaMapMarkerAlt className="text-red-500" />
+                <strong>Location:</strong> {club.location}
+              </p>
+
+              <p className="flex items-center gap-2">
+                <FaMoneyBillWave className="text-green-500" />
+                <strong>Fee:</strong> BDT. {club.membershipFee}
+              </p>
+            </div>
             <div className="mt-4 p-3 border rounded bg-gray-50">
-              <p className="font-semibold">User:</p> <p>{user?.displayName}</p>
-              <p className="text-sm text-gray-600">{user?.email}</p>
+              <p className="font-semibold">User:</p>
+              <p>{user?.displayName}</p>
+              <p className="text-sm text-gray-500">{user?.email}</p>
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button
@@ -215,7 +209,7 @@ const ClubDetails = () => {
               </button>
             </div>
             <button
-              className="absolute top-3 right-3 text-gray-600 text-xl"
+              className="absolute top-3 right-3 text-gray-600 text-2xl hover:text-gray-800 transition"
               onClick={() => setIsModalOpen(false)}
             >
               &times;
@@ -223,7 +217,7 @@ const ClubDetails = () => {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
