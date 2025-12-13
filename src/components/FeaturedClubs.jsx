@@ -28,7 +28,7 @@ const FeaturedClubs = () => {
           {recentClubs.map((club) => (
             <div
               key={club._id}
-              className="group bg-white rounded overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-gray-300"
+              className="group bg-white rounded overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-gray-300 p-4"
             >
               {/* Image */}
               <div className="relative h-52 overflow-hidden">
@@ -68,6 +68,13 @@ const FeaturedClubs = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* View All Clubs Button */}
+        <div className="text-center mt-10">
+          <Link to="/clubs" className="btn btn-primary px-8 py-3">
+            View All Clubs
+          </Link>
         </div>
       </div>
     </section>
