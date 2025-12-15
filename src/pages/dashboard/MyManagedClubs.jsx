@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../hooks/useAuth";
 import Swal from "sweetalert2";
 import { FaEye, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import Loader from "../../components/Loader";
 
 const MyManagedClubs = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     data: myClubs = [],
@@ -23,6 +25,10 @@ const MyManagedClubs = () => {
     enabled: !!user?.email,
   });
 
+  const filteredClubs = myClubs.filter((club) =>
+    club.clubName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const handleDeleteClub = (clubId, clubName) => {
     Swal.fire({
       title: "Are you sure?",
@@ -34,30 +40,17 @@ const MyManagedClubs = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosSecure
-          .delete(`/clubs/${clubId}`)
-          .then((res) => {
-            if (res.data.deletedCount > 0) {
-              refetch();
-              Swal.fire("Deleted!", `${clubName} has been deleted.`, "success");
-            } else {
-              Swal.fire("Failed!", `Could not delete the club.`, "error");
-            }
-          })
-          .catch((err) => {
-            console.error("Delete error:", err);
-            Swal.fire(
-              "Error!",
-              "Server error while deleting the club.",
-              "error"
-            );
-          });
+        axiosSecure.delete(`/clubs/${clubId}`).then((res) => {
+          if (res.data.deletedCount > 0) {
+            refetch();
+            Swal.fire("Deleted!", `${clubName} has been deleted.`, "success");
+          }
+        });
       }
     });
   };
 
-  if (isLoading)
-    return <div className="py-20 text-center">Loading your clubs...</div>;
+  if (isLoading) return <Loader />;
 
   if (!myClubs.length)
     return (
@@ -66,36 +59,46 @@ const MyManagedClubs = () => {
           You are not managing any clubs yet.
         </h3>
         <p className="text-gray-500 mt-2">
-          Create your first club on the{" "}
+          Create your first club on the
           <Link
-            to="/create-club"
+            to="/dashboard/add-a-club"
             className="text-primary hover:underline font-medium"
           >
-            Create Club Page
+            Create a Club
           </Link>
-          .
         </p>
       </div>
     );
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">
-        My Managed Clubs ({myClubs.length})
-      </h2>
+      {/* Title + Search */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h2 className="text-2xl font-bold text-primary">My Managed Clubs</h2>
+
+        <input
+          type="text"
+          placeholder="Search by club name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="input input-bordered w-full md:w-72"
+        />
+      </div>
+
       <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
         <table className="table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Index</th>
               <th>Club Name</th>
               <th>Status</th>
               <th>Created At</th>
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {myClubs.map((club, index) => (
+            {filteredClubs.map((club, index) => (
               <tr key={club._id}>
                 <th>{index + 1}</th>
                 <td>{club.clubName}</td>
@@ -109,6 +112,7 @@ const MyManagedClubs = () => {
                   >
                     <FaEye />
                   </Link>
+
                   <button
                     onClick={() => handleDeleteClub(club._id, club.clubName)}
                     className="btn btn-square hover:bg-red-600 hover:text-white text-red-600"
@@ -119,6 +123,14 @@ const MyManagedClubs = () => {
                 </td>
               </tr>
             ))}
+
+            {!filteredClubs.length && (
+              <tr>
+                <td colSpan="5" className="text-center py-6 text-gray-500">
+                  No clubs found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

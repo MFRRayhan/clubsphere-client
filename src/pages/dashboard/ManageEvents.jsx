@@ -3,6 +3,7 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaTrash } from "react-icons/fa";
+import Loader from "../../components/Loader";
 
 const ManageEvents = () => {
   const axiosSecure = useAxiosSecure();
@@ -52,12 +53,14 @@ const ManageEvents = () => {
     });
   };
 
-  if (loading) return <p className="text-center mt-10">Loading events...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Manage My Events</h2>
+      <h2 className="text-2xl text-primary text-center font-bold mb-6">
+        Manage My Events
+      </h2>
       {events.length === 0 ? (
         <p>No events found.</p>
       ) : (
@@ -65,7 +68,7 @@ const ManageEvents = () => {
           <table className="table table-zebra w-full">
             <thead>
               <tr>
-                <th>#</th>
+                <th>Index</th>
                 <th>Event Name</th>
                 <th>Club Name</th>
                 <th>Date</th>
@@ -84,25 +87,31 @@ const ManageEvents = () => {
                   <td>{event.clubName || "N/A"}</td>
                   <td>{event.eventDate}</td>
                   <td>{event.location}</td>
-                  <td>{event.isPaid ? `৳ ${event.eventFee}` : "Free"}</td>
+                  <td>{event.isPaid ? `BDT. ${event.eventFee}` : "Free"}</td>
                   <td>{event.eventCategory}</td>
                   <td>
                     {event.isPaid ? (
-                      <span className="badge badge-success">Paid</span>
+                      <span className="badge badge-success text-white font-semibold">
+                        Paid
+                      </span>
                     ) : (
-                      <span className="badge badge-info">Free</span>
+                      <span className="badge badge-info text-white font-semibold">
+                        Free
+                      </span>
                     )}
                   </td>
                   <td className="flex gap-2">
                     <button
                       onClick={() => navigate(`/events/${event._id}`)}
-                      className="btn btn-sm btn-info flex items-center gap-1"
+                      className="btn btn-square hover:bg-primary hover:text-white"
+                      title="View Details"
                     >
                       <FaEye />
                     </button>
                     <button
                       onClick={() => handleDelete(event._id)}
-                      className="btn btn-sm btn-error flex items-center gap-1"
+                      className="btn btn-square hover:bg-red-600 hover:text-white text-red-600"
+                      title="Delete"
                     >
                       <FaTrash />
                     </button>
