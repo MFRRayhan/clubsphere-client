@@ -110,6 +110,7 @@ const ManageUsers = () => {
               <th>User</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Joined</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -137,8 +138,9 @@ const ManageUsers = () => {
                 </td>
 
                 <td>{user.email}</td>
+                <td>{new Date(user.createdAt).toLocaleString()}</td>
 
-                <td>
+                <td className="font-semibold">
                   <span
                     className={`text-white capitalize px-3 py-1 rounded-full text-sm ${roleBadge(
                       user.role
@@ -155,7 +157,6 @@ const ManageUsers = () => {
                     className="btn btn-sm btn-primary text-white flex items-center gap-1"
                   >
                     <FaEye />
-                    View
                   </button>
 
                   {/* MEMBER ACTIONS */}

@@ -77,6 +77,7 @@ const ManageClubs = () => {
             <tr>
               <th>Index</th>
               <th>Club</th>
+              <th>Manager Email</th>
               <th>Category</th>
               <th>Location</th>
               <th>Fee</th>
@@ -102,6 +103,7 @@ const ManageClubs = () => {
                     </div>
                   </td>
 
+                  <td>{club.managerEmail}</td>
                   <td>{club.category}</td>
                   <td>{club.location}</td>
 
