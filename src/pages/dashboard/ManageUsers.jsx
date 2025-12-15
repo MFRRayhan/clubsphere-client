@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import useRole from "../../hooks/useRole";
-import { FaSearch, FaUserShield, FaUserEdit, FaEye } from "react-icons/fa";
+import { FaSearch, FaEye } from "react-icons/fa";
 import { BsTrash } from "react-icons/bs";
 import Swal from "sweetalert2";
 import Loader from "../../components/Loader";
@@ -10,10 +10,11 @@ import Loader from "../../components/Loader";
 const ManageUsers = () => {
   const axiosSecure = useAxiosSecure();
   const { role, isLoading } = useRole();
+
   const [searchText, setSearchText] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const { refetch, data: users = [] } = useQuery({
+  const { data: users = [], refetch } = useQuery({
     queryKey: ["users", searchText],
     queryFn: async () => {
       const res = await axiosSecure.get(`/users?searchText=${searchText}`);
@@ -22,12 +23,14 @@ const ManageUsers = () => {
   });
 
   if (isLoading) return <Loader />;
-  if (role !== "admin")
+
+  if (role !== "admin") {
     return (
       <div className="text-center text-2xl text-red-500 py-10">
         Access Denied: Only Admin Can Manage Users
       </div>
     );
+  }
 
   const handleChangeRole = (user, newRole) => {
     Swal.fire({
@@ -77,15 +80,16 @@ const ManageUsers = () => {
   const roleBadge = (role) => {
     if (role === "admin") return "bg-green-500";
     if (role === "clubManager") return "bg-yellow-500";
-    return "bg-blue-500"; // member
+    return "bg-blue-500";
   };
 
   return (
-    <div className="py-10 max-w-7xl mx-auto px-4">
+    <div className="py-10 px-4">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h2 className="text-4xl font-bold text-primary">Manage Users</h2>
-        <div className="flex items-center gap-2 w-full md:w-1/3 bg-white border rounded-lg shadow px-3 py-2">
+        <h2 className="text-2xl font-bold text-primary">Manage Users</h2>
+
+        <div className="flex items-center gap-2 w-full md:w-1/3 bg-white border border-gray-300 rounded-lg shadow px-3 py-2">
           <FaSearch className="text-gray-400" />
           <input
             type="search"
@@ -97,25 +101,28 @@ const ManageUsers = () => {
         </div>
       </div>
 
-      {/* Users Table */}
+      {/* Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="table w-full">
           <thead className="bg-gray-100">
             <tr>
               <th>Index</th>
-              <th>Name</th>
+              <th>User</th>
               <th>Email</th>
               <th>Role</th>
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {users.map((user, index) => (
               <tr key={user._id} className="hover:bg-gray-50">
                 <td>{index + 1}</td>
+
                 <td>
                   <div className="flex items-center gap-3">
                     <img
+                      referrerPolicy="no-referrer"
                       src={user.photoURL}
                       alt="avatar"
                       className="w-12 h-12 rounded-full border"
@@ -128,7 +135,9 @@ const ManageUsers = () => {
                     </div>
                   </div>
                 </td>
+
                 <td>{user.email}</td>
+
                 <td>
                   <span
                     className={`text-white capitalize px-3 py-1 rounded-full text-sm ${roleBadge(
@@ -138,7 +147,9 @@ const ManageUsers = () => {
                     {user.role}
                   </span>
                 </td>
+
                 <td className="flex flex-wrap gap-2">
+                  {/* View */}
                   <button
                     onClick={() => setSelectedUser(user)}
                     className="btn btn-sm btn-primary text-white flex items-center gap-1"
@@ -147,7 +158,8 @@ const ManageUsers = () => {
                     View
                   </button>
 
-                  {user.role !== "admin" && (
+                  {/* MEMBER ACTIONS */}
+                  {user.role === "member" && (
                     <>
                       <button
                         onClick={() => handleChangeRole(user, "admin")}
@@ -155,6 +167,7 @@ const ManageUsers = () => {
                       >
                         Make Admin
                       </button>
+
                       <button
                         onClick={() => handleChangeRole(user, "clubManager")}
                         className="btn btn-sm btn-warning text-white"
@@ -164,6 +177,7 @@ const ManageUsers = () => {
                     </>
                   )}
 
+                  {/* ADMIN ACTION */}
                   {user.role === "admin" && (
                     <button
                       onClick={() => handleChangeRole(user, "member")}
@@ -173,6 +187,17 @@ const ManageUsers = () => {
                     </button>
                   )}
 
+                  {/* MANAGER ACTION */}
+                  {user.role === "clubManager" && (
+                    <button
+                      onClick={() => handleChangeRole(user, "member")}
+                      className="btn btn-sm btn-secondary text-white"
+                    >
+                      Remove Manager
+                    </button>
+                  )}
+
+                  {/* DELETE */}
                   <button
                     onClick={() => handleDelete(user)}
                     className="btn btn-sm btn-error text-white"
@@ -186,25 +211,28 @@ const ManageUsers = () => {
         </table>
       </div>
 
-      {/* User Modal */}
+      {/* User Details Modal */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
             <button
-              className="absolute top-3 right-3 text-gray-600 text-2xl hover:text-gray-800 transition"
+              className="absolute top-3 right-3 text-gray-600 text-2xl"
               onClick={() => setSelectedUser(null)}
             >
               &times;
             </button>
+
             <h3 className="text-2xl font-bold mb-4 text-center">
               User Details
             </h3>
+
             <img
               src={selectedUser.photoURL}
               alt="avatar"
               className="w-24 h-24 rounded-full mx-auto mb-4"
             />
-            <div className="space-y-2 text-gray-700 text-center">
+
+            <div className="space-y-2 text-center">
               <p>
                 <strong>Name:</strong> {selectedUser.displayName}
               </p>
@@ -219,6 +247,7 @@ const ManageUsers = () => {
                 {new Date(selectedUser.createdAt).toLocaleDateString()}
               </p>
             </div>
+
             <div className="mt-6 flex justify-center">
               <button
                 onClick={() => setSelectedUser(null)}

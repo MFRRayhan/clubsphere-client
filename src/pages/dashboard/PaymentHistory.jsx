@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useAuth from "../../hooks/useAuth";
 import Loader from "../../components/Loader";
+import { FaSearch } from "react-icons/fa";
 
 const PaymentHistory = () => {
   const axiosSecure = useAxiosSecure();
@@ -10,6 +11,7 @@ const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     if (!user?.email) return;
@@ -27,22 +29,42 @@ const PaymentHistory = () => {
       });
   }, [axiosSecure, user]);
 
-  if (loading) {
-    return <Loader></Loader>;
-  }
+  if (loading) return <Loader />;
 
-  if (error) {
+  if (error)
     return <div className="text-center py-10 text-red-500">{error}</div>;
-  }
 
-  if (payments.length === 0) {
+  if (payments.length === 0)
     return <div className="text-center py-10">No payment history found</div>;
-  }
+
+  // Filtered payments based on searchText
+  const filteredPayments = payments.filter((p) =>
+    `${p.userEmail} ${p.transactionId} ${p.clubName || ""}`
+      .toLowerCase()
+      .includes(searchText.toLowerCase())
+  );
 
   return (
     <div className="p-6">
-      <h2 className="text-4xl text-primary font-bold mb-6">All Payments</h2>
+      {/* Title + Search */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+        <h2 className="text-2xl font-bold text-primary">All Payments</h2>
 
+        <div className="w-full md:w-80">
+          <div className="input input-bordered flex items-center gap-2">
+            <FaSearch className="text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by user, transaction ID or club..."
+              className="grow"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* DaisyUI Table */}
       <div className="overflow-x-auto">
         <table className="table table-zebra w-full">
           <thead>
@@ -57,17 +79,25 @@ const PaymentHistory = () => {
             </tr>
           </thead>
           <tbody>
-            {payments.map((p, index) => (
-              <tr key={p._id}>
-                <td>{index + 1}</td>
-                <td>{p.userEmail}</td>
-                <td className="font-mono text-xs">{p.transactionId}</td>
-                <td>{p.paymentType}</td>
-                <td>{p.clubName || "N/A"}</td>
-                <td>{p.amount} BDT</td>
-                <td>{new Date(p.paidAt).toLocaleDateString("en-GB")}</td>
+            {filteredPayments.length > 0 ? (
+              filteredPayments.map((p, index) => (
+                <tr key={p._id}>
+                  <td>{index + 1}</td>
+                  <td>{p.userEmail}</td>
+                  <td className="font-mono text-xs">{p.transactionId}</td>
+                  <td>{p.paymentType}</td>
+                  <td>{p.clubName || "N/A"}</td>
+                  <td>{p.amount} BDT</td>
+                  <td>{new Date(p.paidAt).toLocaleDateString("en-GB")}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center py-6 text-gray-500">
+                  No matching payments found
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

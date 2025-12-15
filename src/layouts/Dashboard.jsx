@@ -262,16 +262,15 @@ const Dashboard = () => {
             )}
 
             {/* List item */}
-            <li>
+            {/* <li>
               <button
                 className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                 data-tip="Settings"
               >
-                {/* Settings icon */}
                 <GoGear className="my-1.5 inline-block size-4"></GoGear>
                 <span className="is-drawer-close:hidden">Settings</span>
               </button>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>

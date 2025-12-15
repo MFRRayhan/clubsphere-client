@@ -1,135 +1,212 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { FaCheck, FaTimes, FaSearch } from "react-icons/fa";
 import Swal from "sweetalert2";
 import Loader from "../../components/Loader";
+import { FaEye, FaTrash, FaSearch } from "react-icons/fa";
 
 const ManageClubs = () => {
   const axiosSecure = useAxiosSecure();
-  const [clubs, setClubs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredClubs, setFilteredClubs] = useState([]);
+  const [selectedClub, setSelectedClub] = useState(null);
+  const [searchText, setSearchText] = useState("");
 
-  const fetchPendingClubs = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await axiosSecure.get("/clubs?status=pending");
-      setClubs(res.data);
-      setFilteredClubs(res.data);
-    } catch (err) {
-      console.error(err);
-      Swal.fire("Error", "Failed to fetch clubs", "error");
-    } finally {
-      setLoading(false);
-    }
-  }, [axiosSecure]);
+  const {
+    data: clubs = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["clubs"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("/clubs");
+      return res.data;
+    },
+  });
 
-  useEffect(() => {
-    fetchPendingClubs();
-  }, [fetchPendingClubs]);
+  if (isLoading) return <Loader />;
 
-  useEffect(() => {
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    const results = clubs.filter((club) =>
-      club.clubName.toLowerCase().includes(lowerCaseSearchTerm)
-    );
-    setFilteredClubs(results);
-  }, [searchTerm, clubs]);
+  const filteredClubs = clubs.filter((club) =>
+    `${club.clubName} ${club.category} ${club.location}`
+      .toLowerCase()
+      .includes(searchText.toLowerCase())
+  );
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const handleStatusChange = async (clubId, newStatus) => {
-    try {
-      const confirm = await Swal.fire({
-        title: `Are you sure?`,
-        text: `You want to ${newStatus} this club.`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes",
-        cancelButtonText: "Cancel",
-      });
-
-      if (confirm.isConfirmed) {
-        await axiosSecure.patch(`/clubs/${clubId}/status`, {
-          status: newStatus,
+  const handleDelete = (club) => {
+    Swal.fire({
+      title: "Delete Club?",
+      text: `Are you sure you want to delete ${club.clubName}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, delete",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosSecure.delete(`/clubs/${club._id}`).then((res) => {
+          if (res.data.deletedCount) {
+            refetch();
+            Swal.fire("Deleted!", "Club has been deleted.", "success");
+          }
         });
-        Swal.fire("Updated!", `Club has been ${newStatus}.`, "success");
-        fetchPendingClubs();
-        setSearchTerm("");
       }
-    } catch (err) {
-      console.error(err);
-      Swal.fire("Error", "Failed to update status", "error");
-    }
+    });
   };
-
-  if (loading) return <Loader />;
-
-  if (clubs.length === 0 && searchTerm === "")
-    return (
-      <div className="text-center mt-4">No pending clubs for approval.</div>
-    );
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Manage Pending Clubs</h2>
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search by Club Name..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-150"
-          />
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+    <div className="px-4 py-10">
+      {/* Title + Search */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+        <h2 className="text-2xl font-bold text-primary">Manage Clubs</h2>
+
+        <div className="w-full md:w-80">
+          <div className="input input-bordered flex items-center gap-2">
+            <FaSearch className="text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search club..."
+              className="grow"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
-      {filteredClubs.length === 0 && clubs.length > 0 && (
-        <div className="text-center mt-4">
-          No clubs match your search for "{searchTerm}".
-        </div>
-      )}
+      {/* DaisyUI Table */}
+      <div className="overflow-x-auto bg-white rounded-xl shadow">
+        <table className="table table-zebra">
+          <thead className="bg-base-200">
+            <tr>
+              <th>Index</th>
+              <th>Club</th>
+              <th>Category</th>
+              <th>Location</th>
+              <th>Fee</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
-      <div className="space-y-4">
-        {filteredClubs.map((club) => (
-          <div
-            key={club._id}
-            className="p-4 border rounded flex justify-between items-center bg-white shadow-md hover:shadow-lg transition duration-200"
-          >
-            <div>
-              <h3 className="font-semibold text-xl">{club.clubName}</h3>
-              {club.description && (
-                <p className="text-gray-700 mt-1">{club.description}</p>
-              )}
-              <p className="text-sm text-gray-500 mt-1">
-                Manager:{" "}
-                <span className="font-medium">{club.managerEmail}</span>
+          <tbody>
+            {filteredClubs.length > 0 ? (
+              filteredClubs.map((club, index) => (
+                <tr key={club._id}>
+                  <td>{index + 1}</td>
+
+                  <td>
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={club.bannerImage}
+                        alt="club"
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                      <span className="font-semibold">{club.clubName}</span>
+                    </div>
+                  </td>
+
+                  <td>{club.category}</td>
+                  <td>{club.location}</td>
+
+                  <td>
+                    {club.membershipFee === 0
+                      ? "Free"
+                      : `BDT. ${club.membershipFee}`}
+                  </td>
+
+                  <td>
+                    <span
+                      className={`badge capitalize font-semibold text-white ${
+                        club.status === "approved"
+                          ? "badge-success"
+                          : club.status === "pending"
+                          ? "badge-warning"
+                          : "badge-error"
+                      }`}
+                    >
+                      {club.status}
+                    </span>
+                  </td>
+
+                  <td className="flex gap-2">
+                    <button
+                      className="btn btn-square btn-sm hover:btn-primary"
+                      onClick={() => setSelectedClub(club)}
+                    >
+                      <FaEye />
+                    </button>
+
+                    <button
+                      className="btn btn-square btn-sm hover:btn-error hover:text-white"
+                      onClick={() => handleDelete(club)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center py-6 text-gray-500">
+                  No clubs found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* View Modal */}
+      {selectedClub && (
+        <dialog open className="modal">
+          <div className="modal-box max-w-lg">
+            <h3 className="font-bold text-xl mb-4 text-center">Club Details</h3>
+
+            <img
+              src={selectedClub.bannerImage}
+              alt="banner"
+              className="w-full h-48 object-cover rounded-lg mb-4"
+            />
+
+            <div className="space-y-2">
+              <p>
+                <strong>Name:</strong> {selectedClub.clubName}
+              </p>
+              <p>
+                <strong>Category:</strong> {selectedClub.category}
+              </p>
+              <p>
+                <strong>Location:</strong> {selectedClub.location}
+              </p>
+              <p>
+                <strong>Membership Fee:</strong>{" "}
+                {selectedClub.membershipFee === 0
+                  ? "Free"
+                  : `BDT ${selectedClub.membershipFee}`}
+              </p>
+              <p className="capitalize">
+                <strong>Status:</strong> {selectedClub.status}
+              </p>
+              <p>
+                <strong>Manager Email:</strong> {selectedClub.managerEmail}
+              </p>
+              <p>
+                <strong>Created:</strong>{" "}
+                {new Date(selectedClub.createdAt).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Description:</strong> {selectedClub.description}
               </p>
             </div>
-            <div className="space-x-2 flex">
+
+            <div className="modal-action">
               <button
-                onClick={() => handleStatusChange(club._id, "approved")}
-                className="btn bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition duration-150 transform hover:scale-105"
-                title="Approve Club"
+                className="btn btn-primary"
+                onClick={() => setSelectedClub(null)}
               >
-                <FaCheck /> Approve
-              </button>
-              <button
-                onClick={() => handleStatusChange(club._id, "rejected")}
-                className="btn bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition duration-150 transform hover:scale-105"
-                title="Reject Club"
-              >
-                <FaTimes /> Reject
+                Close
               </button>
             </div>
           </div>
-        ))}
-      </div>
+        </dialog>
+      )}
     </div>
   );
 };
