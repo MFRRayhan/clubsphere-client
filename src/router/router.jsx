@@ -28,6 +28,8 @@ import AllPaymentHistory from "../pages/dashboard/AllPaymentHistory";
 import ManagerPayments from "../pages/dashboard/ManagerPayments";
 import WaitingForApproval from "../pages/dashboard/WaitingForApproval";
 import AdminRoute from "../router/AdminRoute";
+import ManagerRoute from "./ManagerRoute";
+import Profile from "../pages/Profile";
 
 export const router = createBrowserRouter([
   {
@@ -70,6 +72,15 @@ export const router = createBrowserRouter([
         path: "register",
         Component: Register,
       },
+      {
+        path: "profile",
+        // Component: Profile,
+        element: (
+          <PrivateRoute>
+            <Profile></Profile>
+          </PrivateRoute>
+        ),
+      },
     ],
   },
   {
@@ -84,6 +95,7 @@ export const router = createBrowserRouter([
         index: true,
         Component: DashboardHome,
       },
+      // Admin Routes
       {
         path: "manage-users",
         element: (
@@ -119,37 +131,84 @@ export const router = createBrowserRouter([
           </AdminRoute>
         ),
       },
+
+      /* -------------------------------------------------------------------------- */
+
+      // club manager routes
       {
-        path: "add-an-event",
-        Component: AddAnEvent,
+        path: "my-managed-clubs",
+        // Component: MyManagedClubs,
+        element: (
+          <ManagerRoute>
+            <MyManagedClubs></MyManagedClubs>
+          </ManagerRoute>
+        ),
+      },
+      {
+        path: "club-members",
+        // Component: ClubMembers,
+        element: (
+          <ManagerRoute>
+            <ClubMembers></ClubMembers>
+          </ManagerRoute>
+        ),
+      },
+      {
+        path: "manage-events",
+        // Component: ManageEvents,
+        element: (
+          <ManagerRoute>
+            <ManageEvents></ManageEvents>
+          </ManagerRoute>
+        ),
+      },
+      {
+        path: "events-registration",
+        // Component: EventRegistrations,
+        element: (
+          <ManagerRoute>
+            <EventRegistrations></EventRegistrations>
+          </ManagerRoute>
+        ),
       },
       {
         path: "add-a-club",
-        Component: AddAClub,
+        // Component: AddAClub,
+        element: (
+          <ManagerRoute>
+            <AddAClub></AddAClub>
+          </ManagerRoute>
+        ),
       },
+      {
+        path: "add-an-event",
+        // Component: AddAnEvent,
+        element: (
+          <ManagerRoute>
+            <AddAnEvent></AddAnEvent>
+          </ManagerRoute>
+        ),
+      },
+      {
+        path: "manager-payments",
+        // Component: ManagerPayments,
+        element: (
+          <ManagerRoute>
+            <ManagerPayments></ManagerPayments>
+          </ManagerRoute>
+        ),
+      },
+
+      /* -------------------------------------------------------------------------- */
+
       {
         path: "my-clubs",
         Component: MyClubs,
       },
-      {
-        path: "my-managed-clubs",
-        Component: MyManagedClubs,
-      },
+
       {
         path: "my-events",
         Component: MyEvents,
-      },
-      {
-        path: "club-members",
-        Component: ClubMembers,
-      },
-      {
-        path: "manage-events",
-        Component: ManageEvents,
-      },
-      {
-        path: "events-registration",
-        Component: EventRegistrations,
       },
 
       {
@@ -157,10 +216,6 @@ export const router = createBrowserRouter([
         Component: PaymentHistory,
       },
 
-      {
-        path: "manager-payments",
-        Component: ManagerPayments,
-      },
       {
         path: "be-a-manager",
         Component: BeAManager,

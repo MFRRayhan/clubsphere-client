@@ -35,7 +35,11 @@ const PaymentHistory = () => {
     return <div className="text-center py-10 text-red-500">{error}</div>;
 
   if (payments.length === 0)
-    return <div className="text-center py-10">No payment history found</div>;
+    return (
+      <div className="text-center py-10 text-2xl text-error font-semibold">
+        No payment history found
+      </div>
+    );
 
   // Filter payments based on search text
   const filteredPayments = payments.filter((p) =>
@@ -66,7 +70,7 @@ const PaymentHistory = () => {
         <table className="table table-zebra w-full">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Index</th>
               <th>Transaction ID</th>
               <th>Payment Type</th>
               <th>Club / Event</th>
@@ -90,7 +94,10 @@ const PaymentHistory = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500">
+                <td
+                  colSpan="6"
+                  className="text-center py-6 text-error font-semibold text-2xl"
+                >
                   No matching payments found
                 </td>
               </tr>

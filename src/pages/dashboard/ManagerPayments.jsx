@@ -12,12 +12,10 @@ const ManagerPayments = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        // ১️⃣ প্রথমে ম্যানেজারের ইভেন্টগুলি নিয়ে আসা
         const { data: myEvents } = await axiosSecure.get(
           "/manager/my-active-events-with-registrations"
         );
 
-        // ২️⃣ প্রতিটি ইভেন্ট থেকে পার্টিসিপেন্টদের ফিল্টার করা
         const allPayments = [];
         myEvents.forEach((event) => {
           event.participants.forEach((p) => {
@@ -50,8 +48,8 @@ const ManagerPayments = () => {
   if (!payments.length)
     return (
       <div className="text-center py-20">
-        <h3 className="text-xl font-semibold text-gray-700">
-          No payments found for your events.
+        <h3 className="text-2xl font-semibold text-error">
+          No payments found.
         </h3>
       </div>
     );

@@ -82,8 +82,11 @@ const AllPaymentHistory = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-6 text-gray-500">
-                  No matching payments found.
+                <td
+                  colSpan="7"
+                  className="text-center py-6 text-error font-semibold text-2xl"
+                >
+                  No payments have been recorded for any members yet.
                 </td>
               </tr>
             )}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import useRole from "../../hooks/useRole";
-import { FaSearch, FaEye } from "react-icons/fa";
+import { FaSearch, FaEye, FaTrash } from "react-icons/fa";
 import { BsTrash } from "react-icons/bs";
 import Swal from "sweetalert2";
 import Loader from "../../components/Loader";
@@ -203,7 +203,7 @@ const ManageUsers = () => {
                     onClick={() => handleDelete(user)}
                     className="btn btn-sm btn-error text-white"
                   >
-                    <BsTrash />
+                    <FaTrash />
                   </button>
                 </td>
               </tr>
@@ -252,7 +252,7 @@ const ManageUsers = () => {
             <div className="mt-6 flex justify-center">
               <button
                 onClick={() => setSelectedUser(null)}
-                className="btn btn-primary"
+                className="btn btn-error text-white"
               >
                 Close
               </button>
