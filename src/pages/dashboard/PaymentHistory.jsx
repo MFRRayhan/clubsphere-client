@@ -17,14 +17,14 @@ const PaymentHistory = () => {
     if (!user?.email) return;
 
     axiosSecure
-      .get("/admin/payments")
+      .get("/payments/history")
       .then((res) => {
         setPayments(res.data);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Payment fetch error:", err);
-        setError("You are not authorized to view payments");
+        setError("Failed to load your payment history");
         setLoading(false);
       });
   }, [axiosSecure, user]);
@@ -37,25 +37,23 @@ const PaymentHistory = () => {
   if (payments.length === 0)
     return <div className="text-center py-10">No payment history found</div>;
 
-  // Filtered payments based on searchText
+  // Filter payments based on search text
   const filteredPayments = payments.filter((p) =>
-    `${p.userEmail} ${p.transactionId} ${p.clubName || ""}`
+    `${p.transactionId} ${p.clubName || ""} ${p.eventName || ""}`
       .toLowerCase()
       .includes(searchText.toLowerCase())
   );
 
   return (
     <div className="p-6">
-      {/* Title + Search */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-        <h2 className="text-2xl font-bold text-primary">All Payments</h2>
-
+        <h2 className="text-2xl font-bold text-primary">My Payments</h2>
         <div className="w-full md:w-80">
           <div className="input input-bordered flex items-center gap-2">
             <FaSearch className="text-gray-400" />
             <input
               type="text"
-              placeholder="Search by user, transaction ID or club..."
+              placeholder="Search by transaction ID, club or event..."
               className="grow"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -64,16 +62,14 @@ const PaymentHistory = () => {
         </div>
       </div>
 
-      {/* DaisyUI Table */}
       <div className="overflow-x-auto">
         <table className="table table-zebra w-full">
           <thead>
             <tr>
-              <th>Index</th>
-              <th>User</th>
+              <th>#</th>
               <th>Transaction ID</th>
               <th>Payment Type</th>
-              <th>Club</th>
+              <th>Club / Event</th>
               <th>Amount</th>
               <th>Date</th>
             </tr>
@@ -83,17 +79,18 @@ const PaymentHistory = () => {
               filteredPayments.map((p, index) => (
                 <tr key={p._id}>
                   <td>{index + 1}</td>
-                  <td>{p.userEmail}</td>
                   <td className="font-mono text-xs">{p.transactionId}</td>
-                  <td>{p.paymentType}</td>
-                  <td>{p.clubName || "N/A"}</td>
+                  <td>
+                    {p.paymentType || (p.eventName ? "Event" : "Membership")}
+                  </td>
+                  <td>{p.clubName || p.eventName || "N/A"}</td>
                   <td>{p.amount} BDT</td>
                   <td>{new Date(p.paidAt).toLocaleDateString("en-GB")}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-6 text-gray-500">
+                <td colSpan="6" className="text-center py-6 text-gray-500">
                   No matching payments found
                 </td>
               </tr>

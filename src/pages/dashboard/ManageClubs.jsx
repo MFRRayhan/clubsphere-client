@@ -146,7 +146,10 @@ const ManageClubs = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-6 text-gray-500">
+                <td
+                  colSpan="7"
+                  className="text-center py-6 text-2xl text-error font-semibold"
+                >
                   No clubs found
                 </td>
               </tr>
@@ -200,7 +203,7 @@ const ManageClubs = () => {
 
             <div className="modal-action">
               <button
-                className="btn btn-primary"
+                className="btn btn-error text-white"
                 onClick={() => setSelectedClub(null)}
               >
                 Close

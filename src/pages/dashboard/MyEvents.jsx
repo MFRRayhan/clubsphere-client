@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../hooks/useAuth";
 import Swal from "sweetalert2";
-import { FaEye, FaTrash } from "react-icons/fa";
+import { FaEye, FaTrash, FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const MyEvents = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
+  const [searchText, setSearchText] = useState("");
 
   const {
     data: joinedEvents = [],
@@ -87,11 +88,33 @@ const MyEvents = () => {
     );
   }
 
+  // Filter events based on searchText
+  const filteredEvents = joinedEvents.filter((e) =>
+    e.eventName.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">
-        My Joined Events ({joinedEvents.length})
-      </h2>
+      {/* Title + Search */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <h2 className="text-2xl font-bold text-primary">
+          My Joined Events ({filteredEvents.length})
+        </h2>
+
+        <div className="w-full md:w-80">
+          <div className="input input-bordered flex items-center gap-2">
+            <FaSearch className="text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search events..."
+              className="grow"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
         <table className="table">
           <thead>
@@ -105,42 +128,51 @@ const MyEvents = () => {
             </tr>
           </thead>
           <tbody>
-            {joinedEvents.map((item, index) => (
-              <tr key={item._id}>
-                <th>{index + 1}</th>
-                <td>{item.eventName}</td>
-                <td>
-                  {item.fee === 0 ? (
-                    "Free"
-                  ) : (
-                    <>
-                      <strong>BDT.</strong> {item.fee}
-                    </>
-                  )}
-                </td>
+            {filteredEvents.length > 0 ? (
+              filteredEvents.map((item, index) => (
+                <tr key={item._id}>
+                  <th>{index + 1}</th>
+                  <td>{item.eventName}</td>
+                  <td>
+                    {item.fee === 0 ? (
+                      "Free"
+                    ) : (
+                      <>
+                        <strong>BDT.</strong> {item.fee}
+                      </>
+                    )}
+                  </td>
+                  <td>{new Date(item.joinDate).toLocaleString()}</td>
+                  <td className="capitalize">
+                    {item.status === "paid" ? "joined" : `${item.status}`}
+                  </td>
+                  <td className="space-x-2 flex items-center">
+                    <Link
+                      to={`/events/${item.eventId}`}
+                      className="btn btn-square hover:bg-primary hover:text-white"
+                    >
+                      <FaEye />
+                    </Link>
 
-                <td>{new Date(item.joinDate).toLocaleString()}</td>
-                <td className="capitalize">
-                  {item.status === "paid" ? "joined" : `${item.status}`}
-                </td>
-                <td className="space-x-2 flex items-center">
-                  <Link
-                    to={`/events/${item.eventId}`}
-                    className="btn btn-square hover:bg-primary hover:text-white"
-                  >
-                    <FaEye />
-                  </Link>
-
-                  <button
-                    onClick={() => handleUnjoinEvent(item._id, item.eventName)}
-                    className="btn btn-square hover:bg-red-600 hover:text-white text-red-600"
-                    title="Unjoin Event"
-                  >
-                    <FaTrash />
-                  </button>
+                    <button
+                      onClick={() =>
+                        handleUnjoinEvent(item._id, item.eventName)
+                      }
+                      className="btn btn-square hover:bg-red-600 hover:text-white text-red-600"
+                      title="Unjoin Event"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="text-center py-6 text-gray-500">
+                  No matching events found.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

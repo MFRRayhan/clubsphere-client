@@ -7,7 +7,11 @@ import Loader from "../components/Loader";
 import { VscSettings } from "react-icons/vsc";
 import { TbLayoutSidebarLeftExpand } from "react-icons/tb";
 import { Link } from "react-router";
-import { MdEventAvailable, MdAddBusiness } from "react-icons/md";
+import {
+  MdEventAvailable,
+  MdAddBusiness,
+  MdPendingActions,
+} from "react-icons/md";
 import { TiGroup } from "react-icons/ti";
 import { LuNotebook } from "react-icons/lu";
 import { PiUsersFourFill } from "react-icons/pi";
@@ -18,6 +22,7 @@ import {
   FaMoneyCheckAlt,
   FaUserShield,
   FaUser,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import { FaToggleOn } from "react-icons/fa";
 import { FaToggleOff } from "react-icons/fa";
@@ -54,7 +59,7 @@ const Dashboard = () => {
               <path d="M14 10l2 2l-2 2"></path>
             </svg>
           </label>
-          <Link to="/" className="text-4xl font-bold text-primary m-4">
+          <Link to="/" className="text-3xl font-bold text-primary m-4">
             ClubSphere{" "}
             <span className="text-lg text-gray-700 font-semibold">
               Dashboard
@@ -115,7 +120,20 @@ const Dashboard = () => {
 
                 <li>
                   <NavLink
-                    to="/dashboard/payments"
+                    to="/dashboard/waiting-for-approval"
+                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    data-tip="Waiting For Approval"
+                  >
+                    <MdPendingActions className="my-1.5 inline-block size-4"></MdPendingActions>
+                    <span className="is-drawer-close:hidden">
+                      Waiting For Approval
+                    </span>
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink
+                    to="/dashboard/all-payments"
                     className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                     data-tip="Payments"
                   >
@@ -206,8 +224,19 @@ const Dashboard = () => {
                     className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                     data-tip="Add An Event"
                   >
-                    <FaMoneyCheckAlt className="my-1.5 inline-block size-4"></FaMoneyCheckAlt>
+                    <FaCalendarAlt className="my-1.5 inline-block size-4"></FaCalendarAlt>
                     <span className="is-drawer-close:hidden">Add An Event</span>
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink
+                    to="/dashboard/manager-payments"
+                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    data-tip="Payments"
+                  >
+                    <FaMoneyCheckAlt className="my-1.5 inline-block size-4"></FaMoneyCheckAlt>
+                    <span className="is-drawer-close:hidden">Payments</span>
                   </NavLink>
                 </li>
               </>

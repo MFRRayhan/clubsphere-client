@@ -23,7 +23,7 @@ const Forbidden = () => {
             Go Back Home
           </Link>
 
-          <Link to="/dashboard" className="btn btn-primary text-secondary">
+          <Link to="/dashboard" className="btn btn-primary text-white">
             Go to Dashboard
           </Link>
         </div>

@@ -8,8 +8,9 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 const AddAClub = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
-
   const [loading, setLoading] = useState(false);
+
+  const [clubType, setClubType] = useState("Free"); // Default club type
 
   const {
     register,
@@ -34,8 +35,9 @@ const AddAClub = () => {
         category: data.category,
         location: data.location,
         bannerImage: imgUrl,
-        membershipFee: Number(data.membershipFee) || 0,
+        membershipFee: clubType === "Paid" ? Number(data.membershipFee) : 0,
         status: "pending",
+        clubType: clubType,
         managerEmail: user?.email,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -52,6 +54,7 @@ const AddAClub = () => {
           confirmButtonText: "OK",
         });
         reset();
+        setClubType("Free"); // Reset club type
       } else {
         Swal.fire({
           title: "Submission Failed!",
@@ -140,16 +143,36 @@ const AddAClub = () => {
           )}
         </fieldset>
 
-        {/* Membership Fee */}
+        {/* Club Type */}
         <fieldset className="fieldset">
-          <label className="label">Membership Fee</label>
-          <input
-            type="number"
-            className="input w-full"
-            placeholder="0 for free"
-            {...register("membershipFee")}
-          />
+          <label className="label">Club Type</label>
+          <select
+            className="select w-full"
+            value={clubType}
+            onChange={(e) => setClubType(e.target.value)}
+          >
+            <option value="Free">Free</option>
+            <option value="Paid">Paid</option>
+          </select>
         </fieldset>
+
+        {/* Membership Fee (Only show if Paid) */}
+        {clubType === "Paid" && (
+          <fieldset className="fieldset">
+            <label className="label">Membership Fee</label>
+            <input
+              type="number"
+              className="input w-full"
+              placeholder="Enter membership fee"
+              {...register("membershipFee", { required: true })}
+            />
+            {errors.membershipFee && (
+              <p className="text-red-500 text-sm mt-1">
+                Membership fee is required for paid clubs.
+              </p>
+            )}
+          </fieldset>
+        )}
 
         {/* Banner Image */}
         <fieldset className="fieldset">
