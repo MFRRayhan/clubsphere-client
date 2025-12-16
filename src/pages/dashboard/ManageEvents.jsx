@@ -5,6 +5,7 @@ import useAuth from "../../hooks/useAuth";
 import Swal from "sweetalert2";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import Loader from "../../components/Loader";
+import { Link } from "react-router-dom";
 
 const ManageEvents = () => {
   const axiosSecure = useAxiosSecure();
@@ -17,7 +18,6 @@ const ManageEvents = () => {
   const [formData, setFormData] = useState({});
   const [bannerFile, setBannerFile] = useState(null);
 
-  /* ---------------- FETCH EVENTS ---------------- */
   const {
     data: myEvents = [],
     isLoading,
@@ -35,7 +35,6 @@ const ManageEvents = () => {
     event.eventName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  /* ---------------- DELETE EVENT ---------------- */
   const handleDeleteEvent = (eventId, eventName) => {
     Swal.fire({
       title: "Are you sure?",
@@ -46,38 +45,46 @@ const ManageEvents = () => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await axiosSecure.delete(`/events/${eventId}`);
-        refetch();
-        Swal.fire("Deleted!", "Event deleted successfully.", "success");
+        try {
+          await axiosSecure.delete(`/events/${eventId}`);
+          refetch();
+          Swal.fire("Deleted!", "Event deleted successfully.", "success");
+        } catch (error) {
+          Swal.fire("Error", "Failed to delete event.", "error");
+        }
       }
     });
   };
 
-  /* ---------------- OPEN MODAL ---------------- */
   const openModal = async (eventId, mode) => {
-    const res = await axiosSecure.get(`/events/${eventId}`);
-    const eventData = res.data;
+    try {
+      const res = await axiosSecure.get(`/events/${eventId}`);
+      const eventData = res.data;
 
-    setSelectedEvent(eventData);
+      setSelectedEvent(eventData);
 
-    if (mode === "edit") {
-      setFormData({
-        eventName: eventData.eventName || "",
-        eventDescription: eventData.eventDescription || "",
-        eventDate: eventData.eventDate || "",
-        location: eventData.location || "",
-        isPaid: eventData.isPaid || false,
-        eventFee: eventData.eventFee || 0,
-        eventCategory: eventData.eventCategory || "",
-        eventBanner: eventData.eventBanner || "",
-      });
-      setIsEditModalOpen(true);
-    } else {
-      setIsViewModalOpen(true);
+      if (mode === "edit") {
+        setFormData({
+          eventName: eventData.eventName || "",
+          eventDescription: eventData.eventDescription || "",
+          eventDate: eventData.eventDate.split("T")[0] || "",
+          location: eventData.location || "",
+          isPaid: eventData.isPaid || false,
+          eventFee: eventData.eventFee || 0,
+          eventCategory: eventData.eventCategory || "",
+          eventBanner: eventData.eventBanner || "",
+          maxAttendees: eventData.maxAttendees || "",
+        });
+        setBannerFile(null);
+        setIsEditModalOpen(true);
+      } else {
+        setIsViewModalOpen(true);
+      }
+    } catch (error) {
+      Swal.fire("Error", "Failed to fetch event data.", "error");
     }
   };
 
-  /* ---------------- FORM CHANGE ---------------- */
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -86,9 +93,10 @@ const ManageEvents = () => {
     }));
   };
 
-  /* ---------------- BANNER UPLOAD (imgbb) ---------------- */
   const handleBannerChange = async (e) => {
     const file = e.target.files[0];
+    setBannerFile(file);
+
     if (!file) return;
 
     const imageForm = new FormData();
@@ -112,32 +120,60 @@ const ManageEvents = () => {
           ...prev,
           eventBanner: data.data.url,
         }));
-        Swal.fire("Uploaded", "Event banner updated", "success");
+        Swal.fire(
+          "Uploaded",
+          "Event banner updated successfully! Click 'Update Event' to save changes.",
+          "success"
+        );
       } else {
-        Swal.fire("Error", "Banner upload failed", "error");
+        Swal.fire(
+          "Error",
+          "Banner upload failed. " + data.error.message || "",
+          "error"
+        );
+        setBannerFile(null);
       }
-    } catch {
-      Swal.fire("Error", "Banner upload failed", "error");
+    } catch (error) {
+      console.error("Banner upload error:", error);
+      Swal.fire(
+        "Error",
+        "Banner upload failed due to a network or server error.",
+        "error"
+      );
+      setBannerFile(null);
     }
   };
 
-  /* ---------------- UPDATE EVENT ---------------- */
   const handleUpdateEvent = async () => {
     if (!selectedEvent?._id) return;
 
-    await axiosSecure.patch(`/events/${selectedEvent._id}`, formData);
+    if (!formData.eventBanner) {
+      Swal.fire(
+        "Warning",
+        "Please upload the event banner successfully or ensure a banner image is present.",
+        "warning"
+      );
+      return;
+    }
 
-    Swal.fire("Updated!", "Event updated successfully.", "success");
-    setIsEditModalOpen(false);
-    setSelectedEvent(null);
-    refetch();
+    try {
+      await axiosSecure.patch(`/events/${selectedEvent._id}`, formData);
+
+      Swal.fire("Updated!", "Event updated successfully.", "success");
+      setIsEditModalOpen(false);
+      setSelectedEvent(null);
+      setBannerFile(null);
+      refetch();
+    } catch (error) {
+      console.error("Event update error:", error);
+      Swal.fire("Error", "Failed to update event.", "error");
+    }
   };
 
   if (isLoading) return <Loader />;
 
   return (
     <div className="p-4">
-      {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
         <h2 className="text-2xl font-bold text-primary">My Managed Events</h2>
         <input
@@ -149,7 +185,6 @@ const ManageEvents = () => {
         />
       </div>
 
-      {/* TABLE */}
       <div className="overflow-x-auto rounded-box bg-base-100">
         <table className="table">
           <thead>
@@ -167,7 +202,21 @@ const ManageEvents = () => {
             {filteredEvents.map((event, index) => (
               <tr key={event._id}>
                 <td>{index + 1}</td>
-                <td className="font-medium">{event.eventName}</td>
+                <td className="font-medium">
+                  {event.eventName}
+
+                  {event.status === "pending" && (
+                    <span className="ml-2 badge badge-warning text-white">
+                      Pending Approval
+                    </span>
+                  )}
+
+                  {event.status === "rejected" && (
+                    <span className="ml-2 badge badge-error text-white">
+                      Rejected
+                    </span>
+                  )}
+                </td>
                 <td>{new Date(event.eventDate).toLocaleDateString()}</td>
                 <td>{event.location}</td>
                 <td>{event.eventCategory}</td>
@@ -183,35 +232,46 @@ const ManageEvents = () => {
                 <td className="flex gap-2">
                   <button
                     onClick={() => openModal(event._id, "view")}
-                    className="btn btn-square"
+                    className="btn btn-square hover:btn-primary hover:text-white"
                   >
                     <FaEye />
                   </button>
-                  <button
-                    onClick={() => openModal(event._id, "edit")}
-                    className="btn btn-square btn-warning"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() =>
-                      handleDeleteEvent(event._id, event.eventName)
-                    }
-                    className="btn btn-square btn-error"
-                  >
-                    <FaTrash />
-                  </button>
+                  {event.status === "approved" && (
+                    <>
+                      <button
+                        onClick={() => openModal(event._id, "edit")}
+                        className="btn btn-square btn-warning hover:text-white"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleDeleteEvent(event._id, event.eventName)
+                        }
+                        className="btn btn-square btn-error hover:text-white"
+                      >
+                        <FaTrash />
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
 
             {!filteredEvents.length && (
               <tr>
-                <td
-                  colSpan="7"
-                  className="text-center py-6 text-2xl text-error font-semibold"
-                >
-                  No events found
+                <td colSpan="7" className="text-center py-8">
+                  <div className="flex flex-col items-center gap-4">
+                    <p className="text-lg text-error font-medium">
+                      You currently have no events created or hosted.
+                    </p>
+                    <Link
+                      to="/dashboard/add-an-event"
+                      className="btn btn-primary px-6 py-2 text-white font-semibold"
+                    >
+                      Create New Event
+                    </Link>
+                  </div>
                 </td>
               </tr>
             )}
@@ -219,7 +279,6 @@ const ManageEvents = () => {
         </table>
       </div>
 
-      {/* ================= VIEW MODAL ================= */}
       {isViewModalOpen && selectedEvent?._id && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -236,13 +295,22 @@ const ManageEvents = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <p>
+                <b>Club Name:</b> {selectedEvent.clubName}
+              </p>
+              <p>
+                <b>Event Manager:</b> {selectedEvent.eventCreator.name}
+              </p>
+              <p>
+                <b>Manager E-mail:</b> {selectedEvent.eventCreator.email}
+              </p>
+              <p>
                 <b>Category:</b> {selectedEvent.eventCategory}
               </p>
               <p>
                 <b>Location:</b> {selectedEvent.location}
               </p>
               <p>
-                <b>Date:</b>{" "}
+                <b>Date:</b>
                 {new Date(selectedEvent.eventDate).toLocaleDateString()}
               </p>
               <p>
@@ -250,6 +318,9 @@ const ManageEvents = () => {
                 {selectedEvent.isPaid
                   ? `BDT ${selectedEvent.eventFee}`
                   : "Free"}
+              </p>
+              <p>
+                <b>Max Attendees:</b> {selectedEvent.maxAttendees}
               </p>
             </div>
 
@@ -260,7 +331,7 @@ const ManageEvents = () => {
 
             <div className="text-right mt-6">
               <button
-                className="btn btn-error"
+                className="btn btn-error text-white"
                 onClick={() => {
                   setIsViewModalOpen(false);
                   setSelectedEvent(null);
@@ -273,7 +344,6 @@ const ManageEvents = () => {
         </div>
       )}
 
-      {/* ================= EDIT MODAL ================= */}
       {isEditModalOpen && selectedEvent?._id && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
@@ -322,6 +392,17 @@ const ManageEvents = () => {
               </div>
 
               <div>
+                <label className="label font-semibold">Max Attendees</label>
+                <input
+                  type="number"
+                  name="maxAttendees"
+                  value={formData.maxAttendees}
+                  onChange={handleFormChange}
+                  className="input input-bordered w-full"
+                />
+              </div>
+
+              <div>
                 <label className="label font-semibold">Event Fee</label>
                 <input
                   type="number"
@@ -336,13 +417,9 @@ const ManageEvents = () => {
               <div className="flex items-center gap-3 mt-8">
                 <input
                   type="checkbox"
+                  name="isPaid"
                   checked={formData.isPaid}
-                  onChange={(e) =>
-                    setFormData((p) => ({
-                      ...p,
-                      isPaid: e.target.checked,
-                    }))
-                  }
+                  onChange={handleFormChange}
                   className="checkbox checkbox-primary"
                 />
                 <span className="font-semibold">Paid Event</span>
@@ -360,6 +437,11 @@ const ManageEvents = () => {
                     src={formData.eventBanner}
                     className="mt-3 w-full max-h-60 object-cover rounded"
                   />
+                )}
+                {formData.eventBanner && (
+                  <p className="text-sm text-success mt-1">
+                    Current Banner Loaded. Select a new file to change it.
+                  </p>
                 )}
               </div>
 
@@ -381,6 +463,7 @@ const ManageEvents = () => {
                 onClick={() => {
                   setIsEditModalOpen(false);
                   setSelectedEvent(null);
+                  setBannerFile(null);
                 }}
               >
                 Close

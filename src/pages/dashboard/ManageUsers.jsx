@@ -126,7 +126,7 @@ const ManageUsers = () => {
                       referrerPolicy="no-referrer"
                       src={user.photoURL}
                       alt="avatar"
-                      className="w-12 h-12 rounded-full border"
+                      className="w-12 h-12 rounded-full border object-cover object-top"
                     />
                     <div>
                       <div className="font-semibold">{user.displayName}</div>

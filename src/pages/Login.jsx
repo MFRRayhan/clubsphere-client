@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import useAuth from "../hooks/useAuth";
 import { useForm } from "react-hook-form";
@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const Login = () => {
-  const { signInUser } = useAuth();
+  const { signInUser, user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const location = useLocation();
   const navigate = useNavigate();
@@ -18,6 +18,12 @@ const Login = () => {
     reset,
     formState: { errors },
   } = useForm();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSignIn = async (data) => {
     const from = location.state?.from?.pathname || "/";

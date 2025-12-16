@@ -11,6 +11,7 @@ import {
   MdEventAvailable,
   MdAddBusiness,
   MdPendingActions,
+  MdEvent,
 } from "react-icons/md";
 import { TiGroup } from "react-icons/ti";
 import { LuNotebook } from "react-icons/lu";
@@ -60,7 +61,7 @@ const Dashboard = () => {
             </svg>
           </label>
           <Link to="/" className="text-3xl font-bold text-primary m-4">
-            ClubSphere{" "}
+            ClubSphere
             <span className="text-lg text-gray-700 font-semibold">
               Dashboard
             </span>
@@ -82,20 +83,19 @@ const Dashboard = () => {
           {/* Sidebar content here */}
           <ul className="dashboard-sidebar menu w-full grow space-y-2">
             {/* List item */}
+            <li>
+              <NavLink
+                to="/"
+                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                data-tip="Homepage"
+              >
+                {/* Home icon */}
+                <IoHomeOutline className="my-1.5 inline-block size-4"></IoHomeOutline>
+                <span className="is-drawer-close:hidden">Homepage</span>
+              </NavLink>
+            </li>
             {role === "admin" && (
               <>
-                <li>
-                  <NavLink
-                    to="/"
-                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                    data-tip="Homepage"
-                  >
-                    {/* Home icon */}
-                    <IoHomeOutline className="my-1.5 inline-block size-4"></IoHomeOutline>
-                    <span className="is-drawer-close:hidden">Homepage</span>
-                  </NavLink>
-                </li>
-
                 <li>
                   <NavLink
                     to="/dashboard/manage-users"
@@ -115,6 +115,19 @@ const Dashboard = () => {
                   >
                     <FaUsers className="my-1.5 inline-block size-4"></FaUsers>
                     <span className="is-drawer-close:hidden">Manage Clubs</span>
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink
+                    to="/dashboard/admin-manage-events"
+                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    data-tip="Manage Events"
+                  >
+                    <MdEvent className="my-1.5 inline-block size-4"></MdEvent>
+                    <span className="is-drawer-close:hidden">
+                      Manage Events
+                    </span>
                   </NavLink>
                 </li>
 
@@ -146,17 +159,6 @@ const Dashboard = () => {
 
             {role === "clubManager" && (
               <>
-                <li>
-                  <NavLink
-                    to="/"
-                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                    data-tip="Home"
-                  >
-                    <IoHomeOutline className="my-1.5 inline-block size-4"></IoHomeOutline>
-                    <span className="is-drawer-close:hidden">Home</span>
-                  </NavLink>
-                </li>
-
                 <li>
                   <NavLink
                     to="/dashboard/my-managed-clubs"
@@ -244,17 +246,6 @@ const Dashboard = () => {
 
             {role === "member" && (
               <>
-                <li>
-                  <NavLink
-                    to="/"
-                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                    data-tip="Homepage"
-                  >
-                    <IoHomeOutline className="my-1.5 inline-block size-4"></IoHomeOutline>
-                    <span className="is-drawer-close:hidden">Homepage</span>
-                  </NavLink>
-                </li>
-
                 <li>
                   <NavLink
                     to="/dashboard/my-clubs"

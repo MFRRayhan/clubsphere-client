@@ -152,6 +152,10 @@ const ClubDetails = () => {
                 <FaMoneyBillWave className="text-green-500" />
                 <strong>Fee:</strong> BDT. {club.membershipFee}
               </p>
+
+              <p>
+                <b>Manager: </b> {club.managerEmail}
+              </p>
             </div>
 
             <button

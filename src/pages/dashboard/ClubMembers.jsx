@@ -80,7 +80,7 @@ const ClubMembers = () => {
       )}
 
       {!loading && selectedClub && members.length === 0 && (
-        <p className="text-2xl font-semibold text-error">
+        <p className="text-2xl text-center font-semibold text-error">
           No members found for this club.
         </p>
       )}

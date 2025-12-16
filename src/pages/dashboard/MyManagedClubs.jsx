@@ -302,6 +302,7 @@ const MyManagedClubs = () => {
             <h3 className="text-xl font-bold mb-4 text-primary">Edit Club:</h3>
 
             <div className="space-y-3">
+              {/* Club Name */}
               <div>
                 <label className="block mb-1 font-semibold">Club Name</label>
                 <input
@@ -313,6 +314,8 @@ const MyManagedClubs = () => {
                   className="input input-bordered w-full"
                 />
               </div>
+
+              {/* Description */}
               <div>
                 <label className="block mb-1 font-semibold">Description</label>
                 <textarea
@@ -323,17 +326,29 @@ const MyManagedClubs = () => {
                   className="textarea textarea-bordered w-full"
                 />
               </div>
+
+              {/* Category (Dropdown) */}
               <div>
                 <label className="block mb-1 font-semibold">Category</label>
-                <input
-                  type="text"
+                <select
                   name="category"
                   value={formData.category}
                   onChange={handleFormChange}
-                  placeholder="Category"
-                  className="input input-bordered w-full"
-                />
+                  className="select w-full"
+                >
+                  <option disabled value="">
+                    Pick a Category
+                  </option>
+                  <option value="Photography">Photography</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Tech">Tech</option>
+                  <option value="Music">Music</option>
+                  <option value="Arts">Arts</option>
+                  <option value="Others">Others</option>
+                </select>
               </div>
+
+              {/* Location */}
               <div>
                 <label className="block mb-1 font-semibold">Location</label>
                 <input
@@ -345,6 +360,8 @@ const MyManagedClubs = () => {
                   className="input input-bordered w-full"
                 />
               </div>
+
+              {/* Membership Fee */}
               <div>
                 <label className="block mb-1 font-semibold">
                   Membership Fee
@@ -358,6 +375,8 @@ const MyManagedClubs = () => {
                   className="input input-bordered w-full"
                 />
               </div>
+
+              {/* Banner Image */}
               <div>
                 <label className="block mb-1 font-semibold">Banner Image</label>
                 <input

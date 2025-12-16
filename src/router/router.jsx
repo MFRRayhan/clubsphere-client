@@ -30,6 +30,8 @@ import WaitingForApproval from "../pages/dashboard/WaitingForApproval";
 import AdminRoute from "../router/AdminRoute";
 import ManagerRoute from "./ManagerRoute";
 import Profile from "../pages/Profile";
+import AdminManageEvents from "../pages/dashboard/AdminManageEvents";
+import ForgotPassword from "../pages/ForgotPassword";
 
 export const router = createBrowserRouter([
   {
@@ -73,6 +75,10 @@ export const router = createBrowserRouter([
         Component: Register,
       },
       {
+        path: "forgot-password",
+        Component: ForgotPassword,
+      },
+      {
         path: "profile",
         // Component: Profile,
         element: (
@@ -110,6 +116,15 @@ export const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <ManageClubs></ManageClubs>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "admin-manage-events",
+        // Component: ManageClubs,
+        element: (
+          <AdminRoute>
+            <AdminManageEvents></AdminManageEvents>
           </AdminRoute>
         ),
       },

@@ -61,7 +61,7 @@ const AddAnEvent = () => {
       Swal.fire({
         icon: "success",
         title: "Event Created!",
-        text: "Your event has been created successfully.",
+        text: "Your event has been created successfully and is pending admin approval.",
         confirmButtonText: "OK",
       });
 

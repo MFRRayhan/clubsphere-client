@@ -187,6 +187,14 @@ const EventsDetails = () => {
                 <b>Hosted By: </b>
                 {event.clubName}
               </p>
+              <p>
+                <b>Manager: </b>
+                {event.eventCreator.name}
+              </p>
+              <p>
+                <b>Manager Mail: </b>
+                {event.eventCreator.email}
+              </p>
             </div>
 
             {/* Join Button */}

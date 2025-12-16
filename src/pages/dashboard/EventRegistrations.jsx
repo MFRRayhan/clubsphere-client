@@ -141,7 +141,7 @@ const EventRegistrations = () => {
       {/* Event Cards */}
       {filteredEvents.length === 0 && (
         <p className="text-center py-6 text-2xl text-error font-semibold">
-          No events found.
+          Looks like no one has signed up for your event yet.
         </p>
       )}
 
