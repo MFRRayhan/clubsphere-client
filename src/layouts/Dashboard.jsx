@@ -27,6 +27,7 @@ import {
 } from "react-icons/fa";
 import { FaToggleOn } from "react-icons/fa";
 import { FaToggleOff } from "react-icons/fa";
+import UserDropdown from "../components/UserDropdown";
 
 const Dashboard = () => {
   const { role, roleLoading } = useRole();
@@ -38,35 +39,44 @@ const Dashboard = () => {
       <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         {/* Navbar */}
-        <nav className="navbar w-full bg-base-300">
-          <label
-            htmlFor="my-drawer-4"
-            aria-label="open sidebar"
-            className="btn btn-square btn-ghost"
-          >
-            {/* Sidebar toggle icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              strokeWidth="2"
-              fill="none"
-              stroke="currentColor"
-              className="my-1.5 inline-block size-4"
+        <nav className="navbar w-full bg-base-300 px-4">
+          {/* LEFT */}
+          <div className="navbar-start">
+            <label
+              htmlFor="my-drawer-4"
+              aria-label="open sidebar"
+              className="btn btn-square btn-ghost"
             >
-              <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-              <path d="M9 4v16"></path>
-              <path d="M14 10l2 2l-2 2"></path>
-            </svg>
-          </label>
-          <Link to="/" className="text-3xl font-bold text-primary m-4">
-            ClubSphere
-            <span className="text-lg text-gray-700 font-semibold">
-              Dashboard
-            </span>
-          </Link>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeWidth="2"
+                fill="none"
+                stroke="currentColor"
+                className="my-1.5 inline-block size-4"
+              >
+                <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                <path d="M9 4v16" />
+                <path d="M14 10l2 2l-2 2" />
+              </svg>
+            </label>
+
+            <Link to="/" className="text-2xl font-bold text-primary ml-2">
+              ClubSphere
+              <span className="ml-2 text-base text-gray-700 font-semibold">
+                Dashboard
+              </span>
+            </Link>
+          </div>
+
+          {/* RIGHT */}
+          <div className="navbar-end">
+            <UserDropdown />
+          </div>
         </nav>
+
         {/* Page content here */}
         <div className="p-4">
           <Outlet></Outlet>
@@ -85,7 +95,8 @@ const Dashboard = () => {
             {/* List item */}
             <li>
               <NavLink
-                to="/"
+                end
+                to="/dashboard"
                 className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                 data-tip="Homepage"
               >

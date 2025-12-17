@@ -129,14 +129,14 @@ const ManageClubs = () => {
 
                   <td className="flex gap-2">
                     <button
-                      className="btn btn-square btn-sm hover:btn-primary"
+                      className="btn btn-square hover:btn-primary"
                       onClick={() => setSelectedClub(club)}
                     >
                       <FaEye />
                     </button>
 
                     <button
-                      className="btn btn-square btn-sm hover:btn-error hover:text-white"
+                      className="btn btn-square btn-error text-white"
                       onClick={() => handleDelete(club)}
                     >
                       <FaTrash />

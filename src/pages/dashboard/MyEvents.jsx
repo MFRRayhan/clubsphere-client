@@ -5,6 +5,7 @@ import useAuth from "../../hooks/useAuth";
 import Swal from "sweetalert2";
 import { FaEye, FaTrash, FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import Loader from "../../components/Loader";
 
 const MyEvents = () => {
   const axiosSecure = useAxiosSecure();
@@ -24,8 +25,7 @@ const MyEvents = () => {
     enabled: !!user?.email,
   });
 
-  if (isLoading)
-    return <div className="py-20 text-center">Loading joined events...</div>;
+  if (isLoading) return <Loader></Loader>;
 
   const handleUnjoinEvent = (id, eventName) => {
     Swal.fire({
@@ -158,7 +158,7 @@ const MyEvents = () => {
                       onClick={() =>
                         handleUnjoinEvent(item._id, item.eventName)
                       }
-                      className="btn btn-square hover:bg-red-600 hover:text-white text-red-600"
+                      className="btn btn-square btn-error text-white"
                       title="Unjoin Event"
                     >
                       <FaTrash />

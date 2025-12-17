@@ -74,13 +74,13 @@ const MyClubs = () => {
           You are not an active member of any club yet.
         </h3>
         <p className="text-gray-500 mt-2">
-          Explore and join the{" "}
+          Explore and join the
           <Link
             to="/clubs"
             className="text-primary hover:underline font-medium"
           >
             Clubs Page
-          </Link>{" "}
+          </Link>
           to become a member!
         </p>
       </div>

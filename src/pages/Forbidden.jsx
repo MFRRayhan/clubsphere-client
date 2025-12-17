@@ -5,7 +5,7 @@ const Forbidden = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-base-200 px-5">
       <div className="text-center">
-        <h1 className="text-9xl font-extrabold text-red-500 drop-shadow-lg">
+        <h1 className="text-9xl font-extrabold text-primary drop-shadow-lg">
           403
         </h1>
 
