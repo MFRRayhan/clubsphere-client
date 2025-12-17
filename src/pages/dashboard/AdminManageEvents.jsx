@@ -60,7 +60,7 @@ const AdminManageEvents = () => {
                   </button>
                   <button
                     onClick={() => handleDelete(e._id)}
-                    className="btn btn-square btn-error text-white"
+                    className="btn btn-square hover:btn-error hover:text-white"
                   >
                     <FaTrash />
                   </button>

@@ -136,7 +136,7 @@ const ManageClubs = () => {
                     </button>
 
                     <button
-                      className="btn btn-square btn-error text-white"
+                      className="btn btn-square hover:btn-error hover:text-white"
                       onClick={() => handleDelete(club)}
                     >
                       <FaTrash />

@@ -112,7 +112,7 @@ const ManageUsers = () => {
         <table className="table w-full">
           <thead className="bg-gray-100">
             <tr>
-              <th>#</th>
+              <th>Index</th>
               <th>User</th>
               <th>Email</th>
               <th>Joined</th>
