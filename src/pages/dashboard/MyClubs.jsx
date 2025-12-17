@@ -154,7 +154,7 @@ const MyClubs = () => {
                           membership.clubName
                         )
                       }
-                      className="btn btn-square btn-error text-white"
+                      className="btn btn-square hover:btn-error hover:text-white"
                       title="Cancel Membership"
                     >
                       <FaTrash />

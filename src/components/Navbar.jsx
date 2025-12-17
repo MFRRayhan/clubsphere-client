@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router";
 import useAuth from "../hooks/useAuth";
 import Swal from "sweetalert2";
 import UserDropdown from "./UserDropdown";
+import Logo from "./logo";
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -86,11 +87,7 @@ const Navbar = () => {
               </ul>
             </div>
 
-            <Link className="inline-block" to="/">
-              <div className="flex items-end">
-                <h3 className="text-3xl font-bold text-primary">ClubSphere</h3>
-              </div>
-            </Link>
+            <Logo />
           </div>
 
           {/* Center - Desktop Menu */}

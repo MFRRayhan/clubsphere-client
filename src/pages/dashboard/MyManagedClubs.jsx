@@ -213,19 +213,19 @@ const MyManagedClubs = () => {
                 <td className="flex space-x-2">
                   <button
                     onClick={() => openModal(club._id, "view")}
-                    className="btn btn-square"
+                    className="btn btn-square hover:btn-primary"
                   >
                     <FaEye />
                   </button>
                   <button
                     onClick={() => openModal(club._id, "edit")}
-                    className="btn btn-square btn-warning"
+                    className="btn btn-square hover:btn-warning hover:text-white"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => handleDeleteClub(club._id, club.clubName)}
-                    className="btn btn-square btn-error"
+                    className="btn btn-square hover:btn-error hover:text-white"
                   >
                     <FaTrash />
                   </button>

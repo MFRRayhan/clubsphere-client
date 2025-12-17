@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import useRole from "../../hooks/useRole";
-import { FaSearch, FaEye, FaTrash } from "react-icons/fa";
-import { BsTrash } from "react-icons/bs";
+import {
+  FaSearch,
+  FaEye,
+  FaTrash,
+  FaUserShield,
+  FaUsersCog,
+  FaUserMinus,
+} from "react-icons/fa";
 import Swal from "sweetalert2";
 import Loader from "../../components/Loader";
 
@@ -48,7 +54,7 @@ const ManageUsers = () => {
               refetch();
               Swal.fire(
                 "Success!",
-                `${user.displayName}'s role changed to ${newRole}.`,
+                `${user.displayName}'s role updated.`,
                 "success"
               );
             }
@@ -89,7 +95,7 @@ const ManageUsers = () => {
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h2 className="text-2xl font-bold text-primary">Manage Users</h2>
 
-        <div className="flex items-center gap-2 w-full md:w-1/3 bg-white border border-gray-300 rounded-lg shadow px-3 py-2">
+        <div className="flex items-center gap-2 w-full md:w-1/3 bg-white border rounded-lg shadow px-3 py-2">
           <FaSearch className="text-gray-400" />
           <input
             type="search"
@@ -106,11 +112,11 @@ const ManageUsers = () => {
         <table className="table w-full">
           <thead className="bg-gray-100">
             <tr>
-              <th>Index</th>
+              <th>#</th>
               <th>User</th>
               <th>Email</th>
-              <th>Role</th>
               <th>Joined</th>
+              <th>Role</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -130,17 +136,15 @@ const ManageUsers = () => {
                     />
                     <div>
                       <div className="font-semibold">{user.displayName}</div>
-                      <div className="text-sm text-gray-500">
-                        {user.district}
-                      </div>
                     </div>
                   </div>
                 </td>
 
                 <td>{user.email}</td>
-                <td>{new Date(user.createdAt).toLocaleString()}</td>
 
-                <td className="font-semibold">
+                <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+
+                <td>
                   <span
                     className={`text-white capitalize px-3 py-1 rounded-full text-sm ${roleBadge(
                       user.role
@@ -150,61 +154,59 @@ const ManageUsers = () => {
                   </span>
                 </td>
 
-                <td className="flex flex-wrap gap-2">
+                {/* ACTIONS */}
+                <td className="flex gap-2">
                   {/* View */}
-                  <button
-                    onClick={() => setSelectedUser(user)}
-                    className="btn btn-sm btn-primary text-white flex items-center gap-1"
-                  >
-                    <FaEye />
-                  </button>
+                  <div className="tooltip" data-tip="View User">
+                    <button
+                      onClick={() => setSelectedUser(user)}
+                      className="btn btn-square hover:btn-primary"
+                    >
+                      <FaEye />
+                    </button>
+                  </div>
 
-                  {/* MEMBER ACTIONS */}
                   {user.role === "member" && (
                     <>
-                      <button
-                        onClick={() => handleChangeRole(user, "admin")}
-                        className="btn btn-sm btn-success text-white"
-                      >
-                        Make Admin
-                      </button>
+                      <div className="tooltip" data-tip="Make Admin">
+                        <button
+                          onClick={() => handleChangeRole(user, "admin")}
+                          className="btn btn-square hover:text-white hover:btn-success"
+                        >
+                          <FaUserShield />
+                        </button>
+                      </div>
 
-                      <button
-                        onClick={() => handleChangeRole(user, "clubManager")}
-                        className="btn btn-sm btn-warning text-white"
-                      >
-                        Make Manager
-                      </button>
+                      <div className="tooltip" data-tip="Make Club Manager">
+                        <button
+                          onClick={() => handleChangeRole(user, "clubManager")}
+                          className="btn btn-square hover:text-white hover:btn-warning"
+                        >
+                          <FaUsersCog />
+                        </button>
+                      </div>
                     </>
                   )}
 
-                  {/* ADMIN ACTION */}
-                  {user.role === "admin" && (
-                    <button
-                      onClick={() => handleChangeRole(user, "member")}
-                      className="btn btn-sm btn-info text-white"
-                    >
-                      Remove Admin
-                    </button>
+                  {user.role !== "member" && (
+                    <div className="tooltip" data-tip="Remove Role">
+                      <button
+                        onClick={() => handleChangeRole(user, "member")}
+                        className="btn btn-square hover:text-white hover:btn-info"
+                      >
+                        <FaUserMinus />
+                      </button>
+                    </div>
                   )}
 
-                  {/* MANAGER ACTION */}
-                  {user.role === "clubManager" && (
+                  <div className="tooltip" data-tip="Delete User">
                     <button
-                      onClick={() => handleChangeRole(user, "member")}
-                      className="btn btn-sm btn-secondary text-white"
+                      onClick={() => handleDelete(user)}
+                      className="btn btn-square hover:btn-error hover:text-white"
                     >
-                      Remove Manager
+                      <FaTrash />
                     </button>
-                  )}
-
-                  {/* DELETE */}
-                  <button
-                    onClick={() => handleDelete(user)}
-                    className="btn btn-sm btn-error text-white"
-                  >
-                    <FaTrash />
-                  </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -212,20 +214,18 @@ const ManageUsers = () => {
         </table>
       </div>
 
-      {/* User Details Modal */}
+      {/* USER DETAILS MODAL */}
       {selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
             <button
-              className="absolute top-3 right-3 text-gray-600 text-2xl"
+              className="absolute top-3 right-3 text-2xl"
               onClick={() => setSelectedUser(null)}
             >
               &times;
             </button>
 
-            <h3 className="text-2xl font-bold mb-4 text-center">
-              User Details
-            </h3>
+            <h3 className="text-xl font-bold mb-4 text-center">User Details</h3>
 
             <img
               src={selectedUser.photoURL}
@@ -243,16 +243,12 @@ const ManageUsers = () => {
               <p className="capitalize">
                 <strong>Role:</strong> {selectedUser.role}
               </p>
-              <p>
-                <strong>Joined:</strong>{" "}
-                {new Date(selectedUser.createdAt).toLocaleDateString()}
-              </p>
             </div>
 
             <div className="mt-6 flex justify-center">
               <button
                 onClick={() => setSelectedUser(null)}
-                className="btn btn-error text-white"
+                className="btn btn-error"
               >
                 Close
               </button>

@@ -1,40 +1,19 @@
 import React, { useEffect, useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import useAuth from "../../hooks/useAuth";
 import Loader from "../../components/Loader";
 
 const ManagerPayments = () => {
   const axiosSecure = useAxiosSecure();
-  const { user } = useAuth();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const { data: myEvents } = await axiosSecure.get(
-          "/manager/my-active-events-with-registrations"
-        );
-
-        const allPayments = [];
-        myEvents.forEach((event) => {
-          event.participants.forEach((p) => {
-            if (p.fee > 0) {
-              allPayments.push({
-                eventName: event.eventName,
-                participantEmail: p.userEmail,
-                participantName: p.userName,
-                amount: p.fee,
-                status: p.status,
-                paidAt: p.joinDate,
-              });
-            }
-          });
-        });
-
-        setPayments(allPayments);
+        const res = await axiosSecure.get("/manager/payments");
+        setPayments(res.data);
       } catch (error) {
-        console.error("Failed to fetch payments:", error);
+        console.error("Error fetching manager payments:", error);
       } finally {
         setLoading(false);
       }
@@ -47,49 +26,41 @@ const ManagerPayments = () => {
 
   if (!payments.length)
     return (
-      <div className="text-center py-20">
-        <h3 className="text-2xl font-semibold text-error">
-          No payments found.
-        </h3>
+      <div className="text-center py-20 text-error text-2xl">
+        No payments found
       </div>
     );
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-6 text-primary">
-        My Event Payments
-      </h2>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold text-primary mb-6">Payment History</h2>
 
-      <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+      <div className="overflow-x-auto bg-base-100 rounded-xl shadow">
         <table className="table w-full">
           <thead>
             <tr>
               <th>Index</th>
-              <th>Event Name</th>
-              <th>Participant</th>
-              <th>Email</th>
-              <th>Amount (BDT)</th>
-              <th>Status</th>
-              <th>Paid At</th>
+              <th>Type</th>
+              <th>User</th>
+              <th>Amount</th>
+              <th>Transaction</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody>
-            {payments.map((p, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{p.eventName}</td>
-                <td>{p.participantName}</td>
-                <td>{p.participantEmail}</td>
-                <td>{p.amount}</td>
+            {payments.map((p, i) => (
+              <tr key={p._id}>
+                <td>{i + 1}</td>
                 <td>
-                  <span
-                    className={`badge capitalize text-white font-semibold ${
-                      p.status === "paid" ? "badge-success" : "badge-warning"
-                    }`}
-                  >
-                    {p.status}
+                  <span className="badge badge-info capitalize text-white font-semibold">
+                    {p.paymentType}
                   </span>
                 </td>
+                <td>{p.userEmail}</td>
+                <td>
+                  {p.amount} <b>BDT.</b>
+                </td>
+                <td className="text-xs">{p.transactionId}</td>
                 <td>{new Date(p.paidAt).toLocaleString()}</td>
               </tr>
             ))}

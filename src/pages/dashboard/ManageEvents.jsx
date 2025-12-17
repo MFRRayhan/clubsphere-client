@@ -240,7 +240,7 @@ const ManageEvents = () => {
                     <>
                       <button
                         onClick={() => openModal(event._id, "edit")}
-                        className="btn btn-square btn-warning hover:text-white"
+                        className="btn btn-square hover:btn-warning hover:text-white"
                       >
                         <FaEdit />
                       </button>
@@ -248,7 +248,7 @@ const ManageEvents = () => {
                         onClick={() =>
                           handleDeleteEvent(event._id, event.eventName)
                         }
-                        className="btn btn-square btn-error hover:text-white"
+                        className="btn btn-square hover:btn-error hover:text-white"
                       >
                         <FaTrash />
                       </button>

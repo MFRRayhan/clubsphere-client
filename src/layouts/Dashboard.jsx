@@ -28,6 +28,8 @@ import {
 import { FaToggleOn } from "react-icons/fa";
 import { FaToggleOff } from "react-icons/fa";
 import UserDropdown from "../components/UserDropdown";
+import Logo from "../components/logo";
+import dashLogo from "/clubsphere-logo.png";
 
 const Dashboard = () => {
   const { role, roleLoading } = useRole();
@@ -63,12 +65,7 @@ const Dashboard = () => {
               </svg>
             </label>
 
-            <Link to="/" className="text-2xl font-bold text-primary ml-2">
-              ClubSphere
-              <span className="ml-2 text-base text-gray-700 font-semibold">
-                Dashboard
-              </span>
-            </Link>
+            <Logo />
           </div>
 
           {/* RIGHT */}
@@ -93,6 +90,23 @@ const Dashboard = () => {
           {/* Sidebar content here */}
           <ul className="dashboard-sidebar menu w-full grow space-y-2">
             {/* List item */}
+            <li>
+              <NavLink
+                end
+                to="/"
+                className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                data-tip="Go Back Home"
+              >
+                <img
+                  src={dashLogo}
+                  alt="It's a logo"
+                  className="my-1.5 inline-block size-4"
+                />
+                <span className="is-drawer-close:hidden -ml-2 text-primary font-semibold">
+                  lubSphere
+                </span>
+              </NavLink>
+            </li>
             <li>
               <NavLink
                 end
