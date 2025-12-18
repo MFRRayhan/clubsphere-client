@@ -66,9 +66,15 @@ const AllPaymentHistory = () => {
                   <td>{index + 1}</td>
                   <td>{payment.userEmail}</td>
                   <td>
-                    <strong>BDT.</strong>
-                    {payment.amount ? payment.amount : "Free"}
+                    {payment.amount === 0 ? (
+                      "Free"
+                    ) : (
+                      <>
+                        <strong>BDT.</strong> {payment.amount}
+                      </>
+                    )}
                   </td>
+
                   <td>{payment.transactionId}</td>
                   <td>{payment.paymentType || "N/A"}</td>
                   <td>
