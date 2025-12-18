@@ -75,12 +75,6 @@ const AdminManageEvents = () => {
                 <td>{e.clubName}</td>
                 <td>{new Date(e.eventDate).toLocaleDateString()}</td>
                 <td className="flex gap-2">
-                  <button className="btn btn-square hover:btn-primary">
-                    <FaEye />
-                  </button>
-                  <button className="btn btn-square hover:btn-warning hover:text-white">
-                    <FaEdit />
-                  </button>
                   <button
                     onClick={() => handleDelete(e._id)}
                     className="btn btn-square hover:btn-error hover:text-white"
