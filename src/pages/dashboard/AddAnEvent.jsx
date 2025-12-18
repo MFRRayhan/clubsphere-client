@@ -164,6 +164,7 @@ const AddAnEvent = () => {
             <option>Tech</option>
             <option>Music</option>
             <option>Arts</option>
+            <option>Others</option>
           </select>
           {errors.eventCategory && (
             <p className="text-red-500 text-sm mt-1">Category is required.</p>

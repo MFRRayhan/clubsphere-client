@@ -133,11 +133,21 @@ const MyClubs = () => {
                 <tr key={membership._id}>
                   <th>{index + 1}</th>
                   <td>{membership.clubName}</td>
-                  <td>${membership.membershipFee}</td>
+                  <td>
+                    {membership.membershipFee === 0 ? (
+                      "Free"
+                    ) : (
+                      <>
+                        <b>BDT. </b>
+                        {membership.membershipFee}
+                      </>
+                    )}
+                  </td>
+
                   <td>
                     {new Date(membership.purchaseDate).toLocaleDateString()}
                   </td>
-                  <td>{membership.status}</td>
+                  <td className="capitalize">{membership.status}</td>
                   <td className="space-x-2">
                     <Link
                       to={`/clubs/${membership.clubId}`}

@@ -88,7 +88,7 @@ const PaymentHistory = () => {
                     {p.paymentType || (p.eventName ? "Event" : "Membership")}
                   </td>
                   <td>{p.clubName || p.eventName || "N/A"}</td>
-                  <td>{p.amount} BDT</td>
+                  <td>{p.amount === 0 ? "Free" : `${p.amount} BDT`}</td>
                   <td>{new Date(p.paidAt).toLocaleDateString("en-GB")}</td>
                 </tr>
               ))

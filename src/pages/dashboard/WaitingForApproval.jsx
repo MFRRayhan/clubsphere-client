@@ -118,7 +118,7 @@ const WaitingForApproval = () => {
                   <td>{club.clubName}</td>
                   <td>Club</td>
                   <td>{club.managerEmail}</td>
-                  <td>-</td>
+                  <td>{new Date(club.createdAt).toLocaleDateString()}</td>
                   <td className="flex gap-2">
                     <button
                       onClick={() => setSelectedItem(club)}

@@ -53,7 +53,7 @@ const ClubDetails = () => {
           await axiosSecure.post("/memberships", {
             clubId: club._id,
             clubName: club.clubName,
-            clubFee: club.membershipFee,
+            clubFee: Number(club.membershipFee),
           });
 
           const transactionIdFromUrl =
@@ -150,7 +150,10 @@ const ClubDetails = () => {
 
               <p className="flex items-center gap-2">
                 <FaMoneyBillWave className="text-green-500" />
-                <strong>Fee:</strong> BDT. {club.membershipFee}
+                <strong>Fee:</strong>{" "}
+                {club.membershipFee === 0
+                  ? "Free"
+                  : `BDT. ${club.membershipFee}`}
               </p>
 
               <p>
@@ -189,7 +192,10 @@ const ClubDetails = () => {
 
               <p className="flex items-center gap-2">
                 <FaMoneyBillWave className="text-green-500" />
-                <strong>Fee:</strong> BDT. {club.membershipFee}
+                <strong>Fee:</strong>{" "}
+                {club.membershipFee === 0
+                  ? "Free"
+                  : `BDT. ${club.membershipFee}`}
               </p>
             </div>
             <div className="mt-4 p-3 border rounded bg-gray-50">
