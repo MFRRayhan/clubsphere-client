@@ -1,18 +1,38 @@
-# React + Vite
+# ClubSphere - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Purpose
 
-Currently, two official plugins are available:
+ClubSphere Frontend allows users to discover clubs, join memberships, and register for events with a modern React-based UI.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Live URL
 
-## React Compiler
+https://clubsphere-69228.web.app
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Key Features
 
-Note: This will impact Vite dev & build performances.
+- Browse clubs & events
+- Join free or paid clubs
+- Stripe payment integration
+- Role-based dashboards
+- Firebase authentication
+- Search, filter, and sorting
+- Responsive design
+- Framer Motion animations
 
-## Expanding the ESLint configuration
+## Technologies & Packages
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React
+- React Router
+- Firebase
+- Axios
+- @tanstack/react-query
+- React Hook Form
+- Framer Motion
+- SweetAlert2
+- Stripe
+
+## Setup
+
+1. npm install
+2. Create .env with Firebase config
+3. npm run dev
