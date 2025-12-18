@@ -58,8 +58,16 @@ const ManagerPayments = () => {
                 </td>
                 <td>{p.userEmail}</td>
                 <td>
-                  {p.amount} <b>BDT.</b>
+                  {p.amount === 0 ? (
+                    "Free"
+                  ) : (
+                    <>
+                      <b>BDT.</b>
+                      {p.amount}
+                    </>
+                  )}
                 </td>
+
                 <td className="text-xs">{p.transactionId}</td>
                 <td>{new Date(p.paidAt).toLocaleString()}</td>
               </tr>
