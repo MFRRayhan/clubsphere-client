@@ -34,7 +34,7 @@ const AllPaymentHistory = () => {
 
         {/* Search Bar */}
         <div className="relative w-full md:w-80">
-          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-20" />
           <input
             type="text"
             placeholder="Search by email or transaction ID..."

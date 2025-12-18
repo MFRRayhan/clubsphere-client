@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
 import Loader from "../components/Loader";
 import { FaBuilding, FaLocationDot } from "react-icons/fa6";
-import { FaCalendar, FaCalendarAlt } from "react-icons/fa";
+import { FaCalendar, FaSearch } from "react-icons/fa";
 
 const Events = () => {
   const axiosSecure = useAxiosSecure();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["events"],
@@ -17,20 +18,41 @@ const Events = () => {
     },
   });
 
+  const filteredEvents = events.filter((event) =>
+    event.eventName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (isLoading) {
     return <Loader />;
   }
 
   return (
-    <>
-      <section className="px-6 py-16 bg-base-100">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Upcoming Events
-          </h2>
+    <section className="px-6 py-16 bg-base-100">
+      <div className="max-w-7xl mx-auto">
+        {/* Title + Search */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
+          <h2 className="text-3xl font-bold">Upcoming Events</h2>
 
+          <div className="relative w-full md:w-80">
+            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-20" />
+            <input
+              type="text"
+              id="eventSearch"
+              name="eventSearch"
+              placeholder="Search events by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input input-bordered w-full pl-10"
+            />
+          </div>
+        </div>
+
+        {/* Events Grid */}
+        {filteredEvents.length === 0 ? (
+          <p className="text-center text-gray-500">No events found.</p>
+        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {events.map((event) => (
+            {filteredEvents.map((event) => (
               <div
                 key={event._id}
                 className="group bg-white rounded overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-gray-300 p-4"
@@ -63,17 +85,14 @@ const Events = () => {
                     </p>
                     <p className="flex gap-1 items-center">
                       <FaBuilding />
-                      <b>Hosted By: </b>
-                      {event.clubName}
+                      <b>Hosted By:</b> {event.clubName}
                     </p>
                     <p className="flex gap-1 items-center">
                       <FaCalendar />
-                      <b>Event Date: </b>
-                      {event.eventDate}
+                      <b>Event Date:</b> {event.eventDate}
                     </p>
                   </div>
 
-                  {/* Button */}
                   <Link
                     to={`/events/${event._id}`}
                     className="btn btn-primary w-full mt-4"
@@ -84,9 +103,9 @@ const Events = () => {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-    </>
+        )}
+      </div>
+    </section>
   );
 };
 

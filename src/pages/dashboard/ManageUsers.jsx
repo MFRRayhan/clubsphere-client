@@ -95,7 +95,7 @@ const ManageUsers = () => {
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h2 className="text-2xl font-bold text-primary">Manage Users</h2>
 
-        <div className="flex items-center gap-2 w-full md:w-1/3 bg-white border rounded-lg shadow px-3 py-2">
+        <div className="flex items-center gap-2 w-full md:w-80 bg-white border rounded-lg shadow px-3 py-2">
           <FaSearch className="text-gray-400" />
           <input
             type="search"
