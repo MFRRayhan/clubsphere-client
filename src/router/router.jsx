@@ -1,37 +1,43 @@
 import { createBrowserRouter } from "react-router";
+import Dashboard from "../layouts/Dashboard";
+import RootLayout from "../layouts/RootLayout";
+import BlogDetails from "../pages/BlogDetails";
+import Blogs from "../pages/Blogs";
+import ClubDetails from "../pages/ClubDetails";
+import Clubs from "../pages/Clubs";
+import EventDetails from "../pages/EventDetails";
+import Events from "../pages/Events";
+import ForgotPassword from "../pages/ForgotPassword";
 import HomePage from "../pages/HomePage";
 import Login from "../pages/Login";
-import Register from "../pages/Register";
 import NotFound from "../pages/NotFound";
-import RootLayout from "../layouts/RootLayout";
-import Clubs from "../pages/Clubs";
-import Events from "../pages/Events";
-import Dashboard from "../layouts/Dashboard";
-import PrivateRoute from "./PrivateRoutes";
-import DashboardHome from "../pages/dashboard/DashboardHome";
-import Settings from "../pages/dashboard/Settings";
-import ClubDetails from "../pages/ClubDetails";
-import EventsDetails from "../pages/EventsDetails";
-import AddAnEvent from "../pages/dashboard/AddAnEvent";
+import Profile from "../pages/Profile";
+import Register from "../pages/Register";
 import AddAClub from "../pages/dashboard/AddAClub";
-import ClubMembers from "../pages/dashboard/ClubMembers";
-import ManageEvents from "../pages/dashboard/ManageEvents";
-import EventRegistrations from "../pages/dashboard/EventRegistrations";
-import ManageUsers from "../pages/dashboard/ManageUsers";
-import ManageClubs from "../pages/dashboard/ManageClubs";
-import PaymentHistory from "../pages/dashboard/PaymentHistory";
+import AddAnEvent from "../pages/dashboard/AddAnEvent";
+import AdminManageEvents from "../pages/dashboard/AdminManageEvents";
+import AllPaymentHistory from "../pages/dashboard/AllPaymentHistory";
 import BeAManager from "../pages/dashboard/BeAManager";
+import ClubMembers from "../pages/dashboard/ClubMembers";
+import DashboardHome from "../pages/dashboard/DashboardHome";
+import EventRegistrations from "../pages/dashboard/EventRegistrations";
+import ManageBlogs from "../pages/dashboard/ManageBlogs";
+import ManageClubs from "../pages/dashboard/ManageClubs";
+import ManageEvents from "../pages/dashboard/ManageEvents";
+import ManageUsers from "../pages/dashboard/ManageUsers";
+import ManagerPayments from "../pages/dashboard/ManagerPayments";
+import MyBlogs from "../pages/dashboard/MyBlogs";
 import MyClubs from "../pages/dashboard/MyClubs";
 import MyEvents from "../pages/dashboard/MyEvents";
 import MyManagedClubs from "../pages/dashboard/MyManagedClubs";
-import AllPaymentHistory from "../pages/dashboard/AllPaymentHistory";
-import ManagerPayments from "../pages/dashboard/ManagerPayments";
+import PaymentHistory from "../pages/dashboard/PaymentHistory";
+import PendingBlogs from "../pages/dashboard/PendingBlogs";
+import Settings from "../pages/dashboard/Settings";
 import WaitingForApproval from "../pages/dashboard/WaitingForApproval";
+import WriteABlog from "../pages/dashboard/WriteABlog";
 import AdminRoute from "../router/AdminRoute";
 import ManagerRoute from "./ManagerRoute";
-import Profile from "../pages/Profile";
-import AdminManageEvents from "../pages/dashboard/AdminManageEvents";
-import ForgotPassword from "../pages/ForgotPassword";
+import PrivateRoute from "./PrivateRoutes";
 
 export const router = createBrowserRouter([
   {
@@ -48,11 +54,12 @@ export const router = createBrowserRouter([
       },
       {
         path: "clubs/:id",
-        element: (
-          <PrivateRoute>
-            <ClubDetails />
-          </PrivateRoute>
-        ),
+        // element: (
+        //   <PrivateRoute>
+        //     <ClubDetails />
+        //   </PrivateRoute>
+        // ),
+        Component: ClubDetails,
       },
       {
         path: "events",
@@ -60,11 +67,20 @@ export const router = createBrowserRouter([
       },
       {
         path: "events/:id",
-        element: (
-          <PrivateRoute>
-            <EventsDetails />
-          </PrivateRoute>
-        ),
+        // element: (
+        //   <PrivateRoute>
+        //     <EventsDetails />
+        //   </PrivateRoute>
+        // ),
+        Component: EventDetails,
+      },
+      {
+        path: "blogs",
+        Component: Blogs,
+      },
+      {
+        path: "blog/:id",
+        Component: BlogDetails,
       },
       {
         path: "login",
@@ -129,11 +145,27 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "admin-manage-blogs",
+        element: (
+          <AdminRoute>
+            <ManageBlogs />
+          </AdminRoute>
+        ),
+      },
+      {
         path: "waiting-for-approval",
         // Component: WaitingForApproval,
         element: (
           <AdminRoute>
             <WaitingForApproval></WaitingForApproval>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "pending-blogs",
+        element: (
+          <AdminRoute>
+            <PendingBlogs />
           </AdminRoute>
         ),
       },
@@ -165,6 +197,14 @@ export const router = createBrowserRouter([
         element: (
           <ManagerRoute>
             <ClubMembers></ClubMembers>
+          </ManagerRoute>
+        ),
+      },
+      {
+        path: "my-blogs",
+        element: (
+          <ManagerRoute>
+            <MyBlogs />
           </ManagerRoute>
         ),
       },
@@ -201,6 +241,14 @@ export const router = createBrowserRouter([
         element: (
           <ManagerRoute>
             <AddAnEvent></AddAnEvent>
+          </ManagerRoute>
+        ),
+      },
+      {
+        path: "write-a-blog",
+        element: (
+          <ManagerRoute>
+            <WriteABlog />
           </ManagerRoute>
         ),
       },

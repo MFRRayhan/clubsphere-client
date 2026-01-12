@@ -1,9 +1,10 @@
-import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { useState } from "react";
+import { FaEye, FaSearch, FaTrash } from "react-icons/fa";
+import { FaBangladeshiTakaSign } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import Loader from "../../components/Loader";
-import { FaEye, FaTrash, FaSearch } from "react-icons/fa";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const ManageClubs = () => {
   const axiosSecure = useAxiosSecure();
@@ -51,167 +52,178 @@ const ManageClubs = () => {
   };
 
   return (
-    <div className="px-4 py-10">
-      {/* Title + Search */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-        <h2 className="text-2xl font-bold text-primary">Manage Clubs</h2>
+    <div className="py-5">
+      <div className="container mx-auto">
+        {/* Title + Search */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+          <h2 className="text-2xl font-bold text-primary">Manage Clubs</h2>
 
-        <div className="w-full md:w-80">
-          <div className="input input-bordered flex items-center gap-2">
-            <FaSearch className="text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search club..."
-              className="grow"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
+          <div className="w-full md:w-80">
+            <div className="input input-bordered flex items-center gap-2">
+              <FaSearch className="text-gray-300" />
+              <input
+                type="search"
+                placeholder="Search club..."
+                className="grow"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* DaisyUI Table */}
-      <div className="overflow-x-auto bg-white rounded-xl shadow">
-        <table className="table table-zebra">
-          <thead className="bg-base-200">
-            <tr>
-              <th>Index</th>
-              <th>Club</th>
-              <th>Manager Email</th>
-              <th>Category</th>
-              <th>Location</th>
-              <th>Fee</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+        {/* DaisyUI Table */}
+        <div className="overflow-x-auto rounded-xl shadow">
+          <table className="table">
+            <thead className="bg-base-300">
+              <tr>
+                <th>Index</th>
+                <th>Club</th>
+                <th>Manager Email</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Fee</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {filteredClubs.length > 0 ? (
-              filteredClubs.map((club, index) => (
-                <tr key={club._id}>
-                  <td>{index + 1}</td>
+            <tbody>
+              {filteredClubs.length > 0 ? (
+                filteredClubs.map((club, index) => (
+                  <tr key={club._id} className="hover:bg-base-200">
+                    <td>{index + 1}</td>
 
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={club.bannerImage}
-                        alt="club"
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                      <span className="font-semibold">{club.clubName}</span>
-                    </div>
-                  </td>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={club.bannerImage}
+                          alt="club"
+                          className="w-12 h-12 rounded-lg object-cover"
+                        />
+                        <span className="font-semibold">{club.clubName}</span>
+                      </div>
+                    </td>
 
-                  <td>{club.managerEmail}</td>
-                  <td>{club.category}</td>
-                  <td>{club.location}</td>
+                    <td>{club.managerEmail}</td>
+                    <td>{club.category}</td>
+                    <td>{club.location}</td>
 
-                  <td>
-                    {club.membershipFee === 0
-                      ? "Free"
-                      : `BDT. ${club.membershipFee}`}
-                  </td>
+                    <td className="flex items-center gap-1">
+                      {club.membershipFee === 0 ? (
+                        "Free"
+                      ) : (
+                        <>
+                          <FaBangladeshiTakaSign className="text-primary" />
+                          {club.membershipFee}
+                        </>
+                      )}
+                    </td>
 
-                  <td>
-                    <span
-                      className={`badge capitalize font-semibold text-white ${
-                        club.status === "approved"
-                          ? "badge-success"
-                          : club.status === "pending"
-                          ? "badge-warning"
-                          : "badge-error"
-                      }`}
-                    >
-                      {club.status}
-                    </span>
-                  </td>
+                    <td>
+                      <span
+                        className={`badge capitalize font-semibold text-white ${
+                          club.status === "approved"
+                            ? "badge-success"
+                            : club.status === "pending"
+                            ? "badge-warning"
+                            : "badge-error"
+                        }`}
+                      >
+                        {club.status}
+                      </span>
+                    </td>
 
-                  <td className="flex gap-2">
-                    <button
-                      className="btn btn-square hover:btn-primary"
-                      onClick={() => setSelectedClub(club)}
-                    >
-                      <FaEye />
-                    </button>
+                    <td className="flex gap-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          className="btn btn-square hover:btn-primary"
+                          onClick={() => setSelectedClub(club)}
+                        >
+                          <FaEye />
+                        </button>
 
-                    <button
-                      className="btn btn-square hover:btn-error hover:text-white"
-                      onClick={() => handleDelete(club)}
-                    >
-                      <FaTrash />
-                    </button>
+                        <button
+                          className="btn btn-square hover:btn-error hover:text-white"
+                          onClick={() => handleDelete(club)}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="7"
+                    className="text-center py-6 text-2xl text-error font-semibold"
+                  >
+                    No clubs found
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="7"
-                  className="text-center py-6 text-2xl text-error font-semibold"
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* View Modal */}
+        {selectedClub && (
+          <dialog open className="modal">
+            <div className="modal-box max-w-lg">
+              <h3 className="font-bold text-xl mb-4 text-center">
+                Club Details
+              </h3>
+
+              <img
+                src={selectedClub.bannerImage}
+                alt="banner"
+                className="w-full h-48 object-cover rounded-lg mb-4"
+              />
+
+              <div className="space-y-2">
+                <p>
+                  <strong>Name:</strong> {selectedClub.clubName}
+                </p>
+                <p>
+                  <strong>Category:</strong> {selectedClub.category}
+                </p>
+                <p>
+                  <strong>Location:</strong> {selectedClub.location}
+                </p>
+                <p>
+                  <strong>Membership Fee:</strong>{" "}
+                  {selectedClub.membershipFee === 0
+                    ? "Free"
+                    : `BDT ${selectedClub.membershipFee}`}
+                </p>
+                <p className="capitalize">
+                  <strong>Status:</strong> {selectedClub.status}
+                </p>
+                <p>
+                  <strong>Manager Email:</strong> {selectedClub.managerEmail}
+                </p>
+                <p>
+                  <strong>Created:</strong>{" "}
+                  {new Date(selectedClub.createdAt).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Description:</strong> {selectedClub.description}
+                </p>
+              </div>
+
+              <div className="modal-action">
+                <button
+                  className="btn btn-error text-white"
+                  onClick={() => setSelectedClub(null)}
                 >
-                  No clubs found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  Close
+                </button>
+              </div>
+            </div>
+          </dialog>
+        )}
       </div>
-
-      {/* View Modal */}
-      {selectedClub && (
-        <dialog open className="modal">
-          <div className="modal-box max-w-lg">
-            <h3 className="font-bold text-xl mb-4 text-center">Club Details</h3>
-
-            <img
-              src={selectedClub.bannerImage}
-              alt="banner"
-              className="w-full h-48 object-cover rounded-lg mb-4"
-            />
-
-            <div className="space-y-2">
-              <p>
-                <strong>Name:</strong> {selectedClub.clubName}
-              </p>
-              <p>
-                <strong>Category:</strong> {selectedClub.category}
-              </p>
-              <p>
-                <strong>Location:</strong> {selectedClub.location}
-              </p>
-              <p>
-                <strong>Membership Fee:</strong>{" "}
-                {selectedClub.membershipFee === 0
-                  ? "Free"
-                  : `BDT ${selectedClub.membershipFee}`}
-              </p>
-              <p className="capitalize">
-                <strong>Status:</strong> {selectedClub.status}
-              </p>
-              <p>
-                <strong>Manager Email:</strong> {selectedClub.managerEmail}
-              </p>
-              <p>
-                <strong>Created:</strong>{" "}
-                {new Date(selectedClub.createdAt).toLocaleDateString()}
-              </p>
-              <p>
-                <strong>Description:</strong> {selectedClub.description}
-              </p>
-            </div>
-
-            <div className="modal-action">
-              <button
-                className="btn btn-error text-white"
-                onClick={() => setSelectedClub(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </dialog>
-      )}
     </div>
   );
 };

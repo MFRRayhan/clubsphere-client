@@ -1,11 +1,11 @@
 // MyManagedClubs.jsx
-import React, { useState } from "react";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
-import useAuth from "../../hooks/useAuth";
+import { useState } from "react";
+import { FaEdit, FaEye, FaSearch, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { FaEye, FaTrash, FaEdit } from "react-icons/fa";
 import Loader from "../../components/Loader";
+import useAuth from "../../hooks/useAuth";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const MyManagedClubs = () => {
   const axiosSecure = useAxiosSecure();
@@ -125,7 +125,6 @@ const MyManagedClubs = () => {
       let updatedData = { ...formData };
 
       if (bannerFile) {
-        // Create FormData to upload banner image
         const imageForm = new FormData();
         imageForm.append("image", bannerFile);
         const imageRes = await axiosSecure.post("/upload-banner", imageForm, {
@@ -176,238 +175,255 @@ const MyManagedClubs = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h2 className="text-2xl font-bold text-primary">My Managed Clubs</h2>
-        <input
-          type="text"
-          placeholder="Search by club name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="input input-bordered w-full md:w-72"
-        />
-      </div>
+    <div className="py-5">
+      <div className="container mx-auto">
+        {/* Title + Search */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+          <h2 className="text-2xl font-bold text-primary">My Managed Clubs</h2>
 
-      <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Index</th>
-              <th>Club Name</th>
-              <th>Status</th>
-              <th>Category</th>
-              <th>Membership Fee</th>
-              <th>Created At</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredClubs.map((club, index) => (
-              <tr key={club._id}>
-                <th>{index + 1}</th>
-                <td>{club.clubName}</td>
-                <td>{getStatusBadge(club.status)}</td>
-                <td>{club.category}</td>
-                <td>BDT {club.membershipFee}</td>
-                <td>{new Date(club.createdAt).toLocaleDateString()}</td>
-                <td className="flex space-x-2">
-                  <button
-                    onClick={() => openModal(club._id, "view")}
-                    className="btn btn-square hover:btn-primary"
-                  >
-                    <FaEye />
-                  </button>
-                  <button
-                    onClick={() => openModal(club._id, "edit")}
-                    className="btn btn-square hover:btn-warning hover:text-white"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteClub(club._id, club.clubName)}
-                    className="btn btn-square hover:btn-error hover:text-white"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {!filteredClubs.length && (
-              <tr>
-                <td
-                  colSpan="7"
-                  className="text-center py-6 text-2xl text-error font-semibold"
-                >
-                  No clubs found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* VIEW MODAL */}
-      {isViewModalOpen && selectedClub && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold mb-4">{selectedClub.clubName}</h3>
-            <div className="space-y-2">
-              <p>
-                <strong>Description:</strong> {selectedClub.description}
-              </p>
-              <p>
-                <strong>Category:</strong> {selectedClub.category}
-              </p>
-              <p>
-                <strong>Location:</strong> {selectedClub.location}
-              </p>
-              <p>
-                <strong>Membership Fee:</strong> BDT{" "}
-                {selectedClub.membershipFee}
-              </p>
-              <p>
-                <strong>Status:</strong> {selectedClub.status}
-              </p>
-              <p>
-                <strong>Created At:</strong>{" "}
-                {new Date(selectedClub.createdAt).toLocaleString()}
-              </p>
-              {selectedClub.bannerImage && (
-                <div>
-                  <strong>Banner:</strong>
-                  <img
-                    src={selectedClub.bannerImage}
-                    alt="Banner"
-                    className="mt-2 w-full max-h-64 object-cover rounded"
-                  />
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end mt-4">
-              <button
-                className="btn btn-error"
-                onClick={() => setIsViewModalOpen(false)}
-              >
-                Close
-              </button>
+          <div className="w-full md:w-80">
+            <div className="input input-bordered flex items-center gap-2">
+              <FaSearch className="text-gray-300" />
+              <input
+                type="search"
+                placeholder="Search club..."
+                className="grow"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
         </div>
-      )}
 
-      {/* EDIT MODAL */}
-      {isEditModalOpen && selectedClub && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative overflow-y-auto max-h-[90vh]">
-            <h3 className="text-xl font-bold mb-4 text-primary">Edit Club:</h3>
+        <div className="overflow-x-auto rounded-xl shadow">
+          <table className="table">
+            <thead className="bg-base-300">
+              <tr>
+                <th>Index</th>
+                <th>Club Name</th>
+                <th>Status</th>
+                <th>Category</th>
+                <th>Membership Fee</th>
+                <th>Created At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredClubs.map((club, index) => (
+                <tr key={club._id} className="hover:bg-base-200">
+                  <th>{index + 1}</th>
+                  <td>{club.clubName}</td>
+                  <td>{getStatusBadge(club.status)}</td>
+                  <td>{club.category}</td>
+                  <td>BDT {club.membershipFee}</td>
+                  <td>{new Date(club.createdAt).toLocaleDateString()}</td>
+                  <td className="flex space-x-2">
+                    <button
+                      onClick={() => openModal(club._id, "view")}
+                      className="btn btn-square hover:btn-primary"
+                    >
+                      <FaEye />
+                    </button>
+                    <button
+                      onClick={() => openModal(club._id, "edit")}
+                      className="btn btn-square hover:btn-warning hover:text-white"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClub(club._id, club.clubName)}
+                      className="btn btn-square hover:btn-error hover:text-white"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {!filteredClubs.length && (
+                <tr>
+                  <td
+                    colSpan="7"
+                    className="text-center py-6 text-2xl text-error font-semibold"
+                  >
+                    No clubs found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-            <div className="space-y-3">
-              {/* Club Name */}
-              <div>
-                <label className="block mb-1 font-semibold">Club Name</label>
-                <input
-                  type="text"
-                  name="clubName"
-                  value={formData.clubName}
-                  onChange={handleFormChange}
-                  placeholder="Club Name"
-                  className="input input-bordered w-full"
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block mb-1 font-semibold">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleFormChange}
-                  placeholder="Description"
-                  className="textarea textarea-bordered w-full"
-                />
-              </div>
-
-              {/* Category (Dropdown) */}
-              <div>
-                <label className="block mb-1 font-semibold">Category</label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleFormChange}
-                  className="select w-full"
-                >
-                  <option disabled value="">
-                    Pick a Category
-                  </option>
-                  <option value="Photography">Photography</option>
-                  <option value="Sports">Sports</option>
-                  <option value="Tech">Tech</option>
-                  <option value="Music">Music</option>
-                  <option value="Arts">Arts</option>
-                  <option value="Others">Others</option>
-                </select>
-              </div>
-
-              {/* Location */}
-              <div>
-                <label className="block mb-1 font-semibold">Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleFormChange}
-                  placeholder="Location"
-                  className="input input-bordered w-full"
-                />
-              </div>
-
-              {/* Membership Fee */}
-              <div>
-                <label className="block mb-1 font-semibold">
-                  Membership Fee
-                </label>
-                <input
-                  type="number"
-                  name="membershipFee"
-                  value={formData.membershipFee}
-                  onChange={handleFormChange}
-                  placeholder="Membership Fee"
-                  className="input input-bordered w-full"
-                />
-              </div>
-
-              {/* Banner Image */}
-              <div>
-                <label className="block mb-1 font-semibold">Banner Image</label>
-                <input
-                  type="file"
-                  onChange={handleBannerChange}
-                  className="file-input file-input-bordered w-full"
-                />
-                {formData.bannerImage && !bannerFile && (
-                  <img
-                    src={formData.bannerImage}
-                    alt="Banner"
-                    className="mt-2 w-full max-h-48 object-cover rounded"
-                  />
+        {/* VIEW MODAL */}
+        {isViewModalOpen && selectedClub && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+              <h3 className="text-xl font-bold mb-4">
+                {selectedClub.clubName}
+              </h3>
+              <div className="space-y-2">
+                <p>
+                  <strong>Description:</strong> {selectedClub.description}
+                </p>
+                <p>
+                  <strong>Category:</strong> {selectedClub.category}
+                </p>
+                <p>
+                  <strong>Location:</strong> {selectedClub.location}
+                </p>
+                <p>
+                  <strong>Membership Fee:</strong> BDT{" "}
+                  {selectedClub.membershipFee}
+                </p>
+                <p>
+                  <strong>Status:</strong> {selectedClub.status}
+                </p>
+                <p>
+                  <strong>Created At:</strong>{" "}
+                  {new Date(selectedClub.createdAt).toLocaleString()}
+                </p>
+                {selectedClub.bannerImage && (
+                  <div>
+                    <strong>Banner:</strong>
+                    <img
+                      src={selectedClub.bannerImage}
+                      alt="Banner"
+                      className="mt-2 w-full max-h-64 object-cover rounded"
+                    />
+                  </div>
                 )}
               </div>
-            </div>
-
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                className="btn btn-error text-white"
-                onClick={() => setIsEditModalOpen(false)}
-              >
-                Close
-              </button>
-              <button className="btn btn-primary" onClick={handleUpdateClub}>
-                Update Club
-              </button>
+              <div className="flex justify-end mt-4">
+                <button
+                  className="btn btn-error"
+                  onClick={() => setIsViewModalOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* EDIT MODAL */}
+        {isEditModalOpen && selectedClub && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative overflow-y-auto max-h-[90vh]">
+              <h3 className="text-xl font-bold mb-4 text-primary">
+                Edit Club:
+              </h3>
+
+              <div className="space-y-3">
+                {/* Club Name */}
+                <div>
+                  <label className="block mb-1 font-semibold">Club Name</label>
+                  <input
+                    type="text"
+                    name="clubName"
+                    value={formData.clubName}
+                    onChange={handleFormChange}
+                    placeholder="Club Name"
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block mb-1 font-semibold">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleFormChange}
+                    placeholder="Description"
+                    className="textarea textarea-bordered w-full"
+                  />
+                </div>
+
+                {/* Category (Dropdown) */}
+                <div>
+                  <label className="block mb-1 font-semibold">Category</label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleFormChange}
+                    className="select w-full"
+                  >
+                    <option disabled value="">
+                      Pick a Category
+                    </option>
+                    <option value="Photography">Photography</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Tech">Tech</option>
+                    <option value="Music">Music</option>
+                    <option value="Arts">Arts</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </div>
+
+                {/* Location */}
+                <div>
+                  <label className="block mb-1 font-semibold">Location</label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleFormChange}
+                    placeholder="Location"
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                {/* Membership Fee */}
+                <div>
+                  <label className="block mb-1 font-semibold">
+                    Membership Fee
+                  </label>
+                  <input
+                    type="number"
+                    name="membershipFee"
+                    value={formData.membershipFee}
+                    onChange={handleFormChange}
+                    placeholder="Membership Fee"
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                {/* Banner Image */}
+                <div>
+                  <label className="block mb-1 font-semibold">
+                    Banner Image
+                  </label>
+                  <input
+                    type="file"
+                    onChange={handleBannerChange}
+                    className="file-input file-input-bordered w-full"
+                  />
+                  {formData.bannerImage && !bannerFile && (
+                    <img
+                      src={formData.bannerImage}
+                      alt="Banner"
+                      className="mt-2 w-full max-h-48 object-cover rounded"
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  className="btn btn-error text-white"
+                  onClick={() => setIsEditModalOpen(false)}
+                >
+                  Close
+                </button>
+                <button className="btn btn-primary" onClick={handleUpdateClub}>
+                  Update Club
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

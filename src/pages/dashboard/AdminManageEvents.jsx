@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { useEffect, useState } from "react";
+import { FaSearch, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { FaEye, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const AdminManageEvents = () => {
   const axiosSecure = useAxiosSecure();
@@ -40,52 +40,54 @@ const AdminManageEvents = () => {
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
         <h2 className="text-2xl font-bold text-primary">Manage Events</h2>
 
-        <div className="relative w-full md:w-80">
-          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            id="eventAdminSearch"
-            name="eventAdminSearch"
-            placeholder="Search by event or club..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="input input-bordered w-full pl-10"
-          />
+        <div className="w-full md:w-80">
+          <div className="input input-bordered flex items-center gap-2">
+            <FaSearch className="text-gray-300" />
+            <input
+              type="search"
+              placeholder="Search event..."
+              className="grow"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
       {!filteredEvents.length ? (
         <p className="text-error text-xl">No matching events found</p>
       ) : (
-        <table className="table table-zebra w-full">
-          <thead>
-            <tr>
-              <th>Index</th>
-              <th>Event</th>
-              <th>Club</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredEvents.map((e, i) => (
-              <tr key={e._id}>
-                <td>{i + 1}</td>
-                <td>{e.eventName}</td>
-                <td>{e.clubName}</td>
-                <td>{new Date(e.eventDate).toLocaleDateString()}</td>
-                <td className="flex gap-2">
-                  <button
-                    onClick={() => handleDelete(e._id)}
-                    className="btn btn-square hover:btn-error hover:text-white"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
+        <div className="overflow-x-auto rounded-xl shadow">
+          <table className="table w-full">
+            <thead className="bg-base-300">
+              <tr>
+                <th>Index</th>
+                <th>Event</th>
+                <th>Club</th>
+                <th>Date</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredEvents.map((e, i) => (
+                <tr key={e._id} className="hover:bg-base-200">
+                  <td>{i + 1}</td>
+                  <td>{e.eventName}</td>
+                  <td>{e.clubName}</td>
+                  <td>{new Date(e.eventDate).toLocaleDateString()}</td>
+                  <td className="flex gap-2">
+                    <button
+                      onClick={() => handleDelete(e._id)}
+                      className="btn btn-square hover:btn-error hover:text-white"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

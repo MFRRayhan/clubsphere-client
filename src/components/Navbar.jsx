@@ -1,7 +1,5 @@
-import React from "react";
 import { Link, NavLink } from "react-router";
 import useAuth from "../hooks/useAuth";
-import Swal from "sweetalert2";
 import UserDropdown from "./UserDropdown";
 import Logo from "./logo";
 
@@ -41,6 +39,9 @@ const Navbar = () => {
       </li>
       <li>
         <NavLink to="/events">Events</NavLink>
+      </li>
+      <li>
+        <NavLink to="/blogs">Blogs</NavLink>
       </li>
 
       {user && (

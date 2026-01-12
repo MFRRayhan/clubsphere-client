@@ -39,7 +39,7 @@ const categories = [
 const WhyJoin = () => {
   return (
     <section className="bg-base-100 py-20">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="container mx-auto">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <h2 className="text-4xl font-bold mb-4">

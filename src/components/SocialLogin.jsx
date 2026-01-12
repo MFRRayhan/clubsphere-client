@@ -1,15 +1,15 @@
 import React from "react";
 import useAuth from "../hooks/useAuth";
 import useAxiosSecure from "../hooks/useAxiosSecure";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 const SocialLogin = ({ type = "register" }) => {
   const { signInWithGoogle } = useAuth();
   const axiosSecure = useAxiosSecure();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const handleSignInWithGoogle = () => {
-    const from = location.state?.from?.pathname || "/";
     signInWithGoogle()
       .then((result) => {
         console.log(result.user);
@@ -22,7 +22,7 @@ const SocialLogin = ({ type = "register" }) => {
 
         axiosSecure.post("/users", userInfo).then((res) => {
           console.log("User Data has been stored", res.data);
-          navigate(from, { replace: true });
+          navigate(location?.state || "/");
         });
       })
       .catch((err) => {

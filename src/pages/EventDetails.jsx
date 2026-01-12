@@ -7,11 +7,13 @@ import Swal from "sweetalert2";
 import Loader from "../components/Loader";
 import {
   FaMapMarkerAlt,
-  FaMoneyBillWave,
   FaCalendarAlt,
   FaTags,
   FaBuilding,
+  FaUserAlt,
+  FaEnvelope,
 } from "react-icons/fa";
+import { FaBangladeshiTakaSign, FaCalendarCheck } from "react-icons/fa6";
 
 const EventsDetails = () => {
   const { id } = useParams();
@@ -20,6 +22,7 @@ const EventsDetails = () => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const [isJoining, setIsJoining] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch Event
   const { data: event, isLoading: isLoadingEvent } = useQuery({
@@ -56,12 +59,14 @@ const EventsDetails = () => {
     if (paymentSuccess && event && user && !isAlreadyJoined) {
       const recordParticipation = async () => {
         try {
+          // Record participation
           await axiosSecure.post("/event-participants", {
             eventId: event._id,
             eventName: event.eventName,
             eventFee: event.eventFee,
           });
 
+          // Record payment
           await axiosSecure.post("/payments", {
             transactionId: sessionId || `TID_${Date.now()}`,
             amount: event.eventFee,
@@ -100,7 +105,17 @@ const EventsDetails = () => {
     id,
   ]);
 
-  const handleJoinEvent = async () => {
+  // Handle Modal Open
+  const handleJoinEvent = () => {
+    if (!user) {
+      navigate("/login", { state: location.pathname });
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  // Handle Modal Payment
+  const handlePayNow = async () => {
     if (!event || !user) return;
 
     if (event.isPaid) {
@@ -118,6 +133,7 @@ const EventsDetails = () => {
         });
       }
     } else {
+      // Free event join
       try {
         setIsJoining(true);
         await axiosSecure.post("/event-participants", {
@@ -131,6 +147,7 @@ const EventsDetails = () => {
           text: "You have joined this free event.",
           icon: "success",
         });
+        setIsModalOpen(false);
       } catch {
         Swal.fire({
           title: "Error",
@@ -165,34 +182,31 @@ const EventsDetails = () => {
               <p className="text-gray-700 mb-4">{event.eventDescription}</p>
 
               <p className="flex items-center gap-2 text-gray-800">
-                <FaCalendarAlt className="text-blue-500" />
-                <strong>Date:</strong>{" "}
+                <FaCalendarAlt className="text-primary" />
                 {new Date(event.eventDate).toLocaleDateString()}
               </p>
               <p className="flex items-center gap-2 text-gray-800">
-                <FaMapMarkerAlt className="text-red-500" />
-                <strong>Location:</strong> {event.location}
+                <FaMapMarkerAlt className="text-primary" />
+                {event.location}
               </p>
               <p className="flex items-center gap-2 text-gray-800">
-                <FaMoneyBillWave className="text-green-500" />
-                <strong>Fee:</strong>{" "}
-                {event.isPaid ? `BDT. ${event.eventFee}` : "Free"}
+                <FaBangladeshiTakaSign className="text-primary" />
+                {event.isPaid ? `${event.eventFee}` : "Free"}
               </p>
               <p className="flex items-center gap-2 text-gray-800">
-                <FaTags />
-                <strong>Category:</strong> {event.eventCategory}
+                <FaTags className="text-primary" />
+                {event.eventCategory}
               </p>
-              <p className="flex gap-1 items-center">
-                <FaBuilding />
-                <b>Hosted By: </b>
+              <p className="flex gap-2 items-center">
+                <FaBuilding className="text-primary" />
                 {event.clubName}
               </p>
-              <p>
-                <b>Manager: </b>
+              <p className="flex gap-2 items-center">
+                <FaUserAlt className="text-primary" />
                 {event.eventCreator.name}
               </p>
-              <p>
-                <b>Manager Mail: </b>
+              <p className="flex gap-2 items-center">
+                <FaEnvelope className="text-primary" />
                 {event.eventCreator.email}
               </p>
             </div>
@@ -201,7 +215,7 @@ const EventsDetails = () => {
             <button
               disabled={isAlreadyJoined || isJoining}
               onClick={handleJoinEvent}
-              className={`btn btn-primary w-full py-3 text-lg font-semibold ${
+              className={`btn btn-primary w-full py-3 font-semibold ${
                 isAlreadyJoined || isJoining ? "cursor-not-allowed" : ""
               }`}
             >
@@ -216,6 +230,70 @@ const EventsDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && !isAlreadyJoined && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-lg p-6 shadow-xl relative">
+            <h3 className="text-2xl font-bold mb-4">Review Event</h3>
+            <div className="space-y-2">
+              <p className="flex items-center gap-2">
+                <FaBuilding className="text-primary" />
+                {event.clubName}
+              </p>
+              <p className="flex items-center gap-2">
+                <FaCalendarCheck className="text-primary" />
+                {event.eventName}
+              </p>
+              <p className="flex items-center gap-2">
+                <FaCalendarAlt className="text-primary" />
+                {new Date(event.eventDate).toLocaleDateString()}
+              </p>
+              <p className="flex items-center gap-2">
+                <FaMapMarkerAlt className="text-primary" />
+                {event.location}
+              </p>
+              <p className="flex items-center gap-2">
+                <FaBangladeshiTakaSign className="text-primary" />
+                {event.isPaid ? `${event.eventFee}` : "Free"}
+              </p>
+            </div>
+
+            <div className="mt-4 p-3 border-2 border-base-300 rounded">
+              <p className="font-semibold">User:</p>
+              <p>{user?.displayName}</p>
+              <p className="text-sm text-gray-500">{user?.email}</p>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handlePayNow}
+                disabled={isJoining}
+              >
+                {isJoining
+                  ? "Processing..."
+                  : event.isPaid
+                  ? "Proceed to Payment"
+                  : "Join Now"}
+              </button>
+            </div>
+
+            <button
+              className="absolute top-3 right-3 text-gray-600 text-2xl hover:text-gray-800 transition"
+              onClick={() => setIsModalOpen(false)}
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

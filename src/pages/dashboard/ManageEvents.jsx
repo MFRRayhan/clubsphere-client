@@ -1,11 +1,11 @@
-import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
-import useAuth from "../../hooks/useAuth";
-import Swal from "sweetalert2";
-import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
-import Loader from "../../components/Loader";
+import { useState } from "react";
+import { FaEdit, FaEye, FaSearch, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
+import Loader from "../../components/Loader";
+import useAuth from "../../hooks/useAuth";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const ManageEvents = () => {
   const axiosSecure = useAxiosSecure();
@@ -173,308 +173,317 @@ const ManageEvents = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="p-4">
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-        <h2 className="text-2xl font-bold text-primary">My Managed Events</h2>
-        <input
-          type="text"
-          placeholder="Search by event name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="input input-bordered w-full md:w-72"
-        />
-      </div>
-
-      <div className="overflow-x-auto rounded-box bg-base-100">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Index</th>
-              <th>Event</th>
-              <th>Date</th>
-              <th>Location</th>
-              <th>Category</th>
-              <th>Fee</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredEvents.map((event, index) => (
-              <tr key={event._id}>
-                <td>{index + 1}</td>
-                <td className="font-medium">
-                  {event.eventName}
-
-                  {event.status === "pending" && (
-                    <span className="ml-2 badge badge-warning text-white">
-                      Pending Approval
-                    </span>
-                  )}
-
-                  {event.status === "rejected" && (
-                    <span className="ml-2 badge badge-error text-white">
-                      Rejected
-                    </span>
-                  )}
-                </td>
-                <td>{new Date(event.eventDate).toLocaleDateString()}</td>
-                <td>{event.location}</td>
-                <td>{event.eventCategory}</td>
-                <td>
-                  {event.isPaid ? (
-                    <span className="badge badge-success text-white">
-                      BDT {event.eventFee}
-                    </span>
-                  ) : (
-                    <span className="badge badge-info text-white">Free</span>
-                  )}
-                </td>
-                <td className="flex gap-2">
-                  <button
-                    onClick={() => openModal(event._id, "view")}
-                    className="btn btn-square hover:btn-primary hover:text-white"
-                  >
-                    <FaEye />
-                  </button>
-                  {event.status === "approved" && (
-                    <>
-                      <button
-                        onClick={() => openModal(event._id, "edit")}
-                        className="btn btn-square hover:btn-warning hover:text-white"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleDeleteEvent(event._id, event.eventName)
-                        }
-                        className="btn btn-square hover:btn-error hover:text-white"
-                      >
-                        <FaTrash />
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-
-            {!filteredEvents.length && (
-              <tr>
-                <td colSpan="7" className="text-center py-8">
-                  <div className="flex flex-col items-center gap-4">
-                    <p className="text-lg text-error font-medium">
-                      You currently have no events created or hosted.
-                    </p>
-                    <Link
-                      to="/dashboard/add-an-event"
-                      className="btn btn-primary px-6 py-2 text-white font-semibold"
-                    >
-                      Create New Event
-                    </Link>
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {isViewModalOpen && selectedEvent?._id && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-2xl font-bold mb-4 text-primary">
-              {selectedEvent.eventName}
-            </h3>
-
-            {selectedEvent.eventBanner && (
-              <img
-                src={selectedEvent.eventBanner}
-                className="w-full h-64 object-cover rounded mb-5"
+    <div className="py-5">
+      <div className="container mx-auto">
+        <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+          <h2 className="text-2xl font-bold text-primary">My Managed Events</h2>
+          <div className="w-full md:w-80">
+            <div className="input input-bordered flex items-center gap-2">
+              <FaSearch className="text-gray-300" />
+              <input
+                type="search"
+                placeholder="Search event..."
+                className="grow"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <p>
-                <b>Club Name:</b> {selectedEvent.clubName}
-              </p>
-              <p>
-                <b>Event Manager:</b> {selectedEvent.eventCreator.name}
-              </p>
-              <p>
-                <b>Manager E-mail:</b> {selectedEvent.eventCreator.email}
-              </p>
-              <p>
-                <b>Category:</b> {selectedEvent.eventCategory}
-              </p>
-              <p>
-                <b>Location:</b> {selectedEvent.location}
-              </p>
-              <p>
-                <b>Date:</b>
-                {new Date(selectedEvent.eventDate).toLocaleDateString()}
-              </p>
-              <p>
-                <b>Fee:</b>{" "}
-                {selectedEvent.isPaid
-                  ? `BDT ${selectedEvent.eventFee}`
-                  : "Free"}
-              </p>
-              <p>
-                <b>Max Attendees:</b> {selectedEvent.maxAttendees}
-              </p>
-            </div>
-
-            <div className="mt-4">
-              <b>Description:</b>
-              <p>{selectedEvent.eventDescription}</p>
-            </div>
-
-            <div className="text-right mt-6">
-              <button
-                className="btn btn-error text-white"
-                onClick={() => {
-                  setIsViewModalOpen(false);
-                  setSelectedEvent(null);
-                }}
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>
-      )}
 
-      {isEditModalOpen && selectedEvent?._id && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold mb-4 text-primary">Edit Event</h3>
+        <div className="overflow-x-auto rounded-xl shadow">
+          <table className="table">
+            <thead className="bg-base-300">
+              <tr>
+                <th>Index</th>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Category</th>
+                <th>Fee</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredEvents.map((event, index) => (
+                <tr key={event._id} className="hover:bg-base-200">
+                  <td>{index + 1}</td>
+                  <td className="font-medium">
+                    {event.eventName}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="label font-semibold">Event Name</label>
-                <input
-                  name="eventName"
-                  value={formData.eventName}
-                  onChange={handleFormChange}
-                  className="input input-bordered w-full"
+                    {event.status === "pending" && (
+                      <span className="ml-2 badge badge-warning text-white">
+                        Pending Approval
+                      </span>
+                    )}
+
+                    {event.status === "rejected" && (
+                      <span className="ml-2 badge badge-error text-white">
+                        Rejected
+                      </span>
+                    )}
+                  </td>
+                  <td>{new Date(event.eventDate).toLocaleDateString()}</td>
+                  <td>{event.location}</td>
+                  <td>{event.eventCategory}</td>
+                  <td>
+                    {event.isPaid ? (
+                      <span className="badge badge-success text-white">
+                        BDT {event.eventFee}
+                      </span>
+                    ) : (
+                      <span className="badge badge-info text-white">Free</span>
+                    )}
+                  </td>
+                  <td className="flex gap-2">
+                    <button
+                      onClick={() => openModal(event._id, "view")}
+                      className="btn btn-square hover:btn-primary hover:text-white"
+                    >
+                      <FaEye />
+                    </button>
+                    {event.status === "approved" && (
+                      <>
+                        <button
+                          onClick={() => openModal(event._id, "edit")}
+                          className="btn btn-square hover:btn-warning hover:text-white"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeleteEvent(event._id, event.eventName)
+                          }
+                          className="btn btn-square hover:btn-error hover:text-white"
+                        >
+                          <FaTrash />
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+
+              {!filteredEvents.length && (
+                <tr>
+                  <td colSpan="7" className="text-center py-8">
+                    <div className="flex flex-col items-center gap-4">
+                      <p className="text-lg text-error font-medium">
+                        You currently have no events created or hosted.
+                      </p>
+                      <Link
+                        to="/dashboard/add-an-event"
+                        className="btn btn-primary px-6 py-2 text-white font-semibold"
+                      >
+                        Create New Event
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {isViewModalOpen && selectedEvent?._id && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+              <h3 className="text-2xl font-bold mb-4 text-primary">
+                {selectedEvent.eventName}
+              </h3>
+
+              {selectedEvent.eventBanner && (
+                <img
+                  src={selectedEvent.eventBanner}
+                  className="w-full h-64 object-cover rounded mb-5"
                 />
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <p>
+                  <b>Club Name:</b> {selectedEvent.clubName}
+                </p>
+                <p>
+                  <b>Event Manager:</b> {selectedEvent.eventCreator.name}
+                </p>
+                <p>
+                  <b>Manager E-mail:</b> {selectedEvent.eventCreator.email}
+                </p>
+                <p>
+                  <b>Category:</b> {selectedEvent.eventCategory}
+                </p>
+                <p>
+                  <b>Location:</b> {selectedEvent.location}
+                </p>
+                <p>
+                  <b>Date:</b>
+                  {new Date(selectedEvent.eventDate).toLocaleDateString()}
+                </p>
+                <p>
+                  <b>Fee:</b>{" "}
+                  {selectedEvent.isPaid
+                    ? `BDT ${selectedEvent.eventFee}`
+                    : "Free"}
+                </p>
+                <p>
+                  <b>Max Attendees:</b> {selectedEvent.maxAttendees}
+                </p>
               </div>
 
-              <div>
-                <label className="label font-semibold">Category</label>
-                <input
-                  name="eventCategory"
-                  value={formData.eventCategory}
-                  onChange={handleFormChange}
-                  className="input input-bordered w-full"
-                />
+              <div className="mt-4">
+                <b>Description:</b>
+                <p>{selectedEvent.eventDescription}</p>
               </div>
 
-              <div>
-                <label className="label font-semibold">Event Date</label>
-                <input
-                  type="date"
-                  name="eventDate"
-                  value={formData.eventDate}
-                  onChange={handleFormChange}
-                  className="input input-bordered w-full"
-                />
+              <div className="text-right mt-6">
+                <button
+                  className="btn btn-error text-white"
+                  onClick={() => {
+                    setIsViewModalOpen(false);
+                    setSelectedEvent(null);
+                  }}
+                >
+                  Close
+                </button>
               </div>
+            </div>
+          </div>
+        )}
 
-              <div>
-                <label className="label font-semibold">Location</label>
-                <input
-                  name="location"
-                  value={formData.location}
-                  onChange={handleFormChange}
-                  className="input input-bordered w-full"
-                />
-              </div>
+        {isEditModalOpen && selectedEvent?._id && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
+              <h3 className="text-xl font-bold mb-4 text-primary">
+                Edit Event
+              </h3>
 
-              <div>
-                <label className="label font-semibold">Max Attendees</label>
-                <input
-                  type="number"
-                  name="maxAttendees"
-                  value={formData.maxAttendees}
-                  onChange={handleFormChange}
-                  className="input input-bordered w-full"
-                />
-              </div>
-
-              <div>
-                <label className="label font-semibold">Event Fee</label>
-                <input
-                  type="number"
-                  name="eventFee"
-                  value={formData.eventFee}
-                  onChange={handleFormChange}
-                  disabled={!formData.isPaid}
-                  className="input input-bordered w-full"
-                />
-              </div>
-
-              <div className="flex items-center gap-3 mt-8">
-                <input
-                  type="checkbox"
-                  name="isPaid"
-                  checked={formData.isPaid}
-                  onChange={handleFormChange}
-                  className="checkbox checkbox-primary"
-                />
-                <span className="font-semibold">Paid Event</span>
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="label font-semibold">Event Banner</label>
-                <input
-                  type="file"
-                  onChange={handleBannerChange}
-                  className="file-input file-input-bordered w-full"
-                />
-                {formData.eventBanner && (
-                  <img
-                    src={formData.eventBanner}
-                    className="mt-3 w-full max-h-60 object-cover rounded"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label font-semibold">Event Name</label>
+                  <input
+                    name="eventName"
+                    value={formData.eventName}
+                    onChange={handleFormChange}
+                    className="input input-bordered w-full"
                   />
-                )}
-                {formData.eventBanner && (
-                  <p className="text-sm text-success mt-1">
-                    Current Banner Loaded. Select a new file to change it.
-                  </p>
-                )}
+                </div>
+
+                <div>
+                  <label className="label font-semibold">Category</label>
+                  <input
+                    name="eventCategory"
+                    value={formData.eventCategory}
+                    onChange={handleFormChange}
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="label font-semibold">Event Date</label>
+                  <input
+                    type="date"
+                    name="eventDate"
+                    value={formData.eventDate}
+                    onChange={handleFormChange}
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="label font-semibold">Location</label>
+                  <input
+                    name="location"
+                    value={formData.location}
+                    onChange={handleFormChange}
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="label font-semibold">Max Attendees</label>
+                  <input
+                    type="number"
+                    name="maxAttendees"
+                    value={formData.maxAttendees}
+                    onChange={handleFormChange}
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="label font-semibold">Event Fee</label>
+                  <input
+                    type="number"
+                    name="eventFee"
+                    value={formData.eventFee}
+                    onChange={handleFormChange}
+                    disabled={!formData.isPaid}
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 mt-8">
+                  <input
+                    type="checkbox"
+                    name="isPaid"
+                    checked={formData.isPaid}
+                    onChange={handleFormChange}
+                    className="checkbox checkbox-primary"
+                  />
+                  <span className="font-semibold">Paid Event</span>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="label font-semibold">Event Banner</label>
+                  <input
+                    type="file"
+                    onChange={handleBannerChange}
+                    className="file-input file-input-bordered w-full"
+                  />
+                  {formData.eventBanner && (
+                    <img
+                      src={formData.eventBanner}
+                      className="mt-3 w-full max-h-60 object-cover rounded"
+                    />
+                  )}
+                  {formData.eventBanner && (
+                    <p className="text-sm text-success mt-1">
+                      Current Banner Loaded. Select a new file to change it.
+                    </p>
+                  )}
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="label font-semibold">Description</label>
+                  <textarea
+                    name="eventDescription"
+                    value={formData.eventDescription}
+                    onChange={handleFormChange}
+                    className="textarea textarea-bordered w-full"
+                    rows="4"
+                  />
+                </div>
               </div>
 
-              <div className="md:col-span-2">
-                <label className="label font-semibold">Description</label>
-                <textarea
-                  name="eventDescription"
-                  value={formData.eventDescription}
-                  onChange={handleFormChange}
-                  className="textarea textarea-bordered w-full"
-                  rows="4"
-                />
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  className="btn btn-error text-white"
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedEvent(null);
+                    setBannerFile(null);
+                  }}
+                >
+                  Close
+                </button>
+                <button onClick={handleUpdateEvent} className="btn btn-primary">
+                  Update Event
+                </button>
               </div>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                className="btn btn-error text-white"
-                onClick={() => {
-                  setIsEditModalOpen(false);
-                  setSelectedEvent(null);
-                  setBannerFile(null);
-                }}
-              >
-                Close
-              </button>
-              <button onClick={handleUpdateEvent} className="btn btn-primary">
-                Update Event
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router";
+import { useParams, useLocation, Navigate, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAuth from "../hooks/useAuth";
 import Swal from "sweetalert2";
 import Loader from "../components/Loader";
-import { FaBuilding, FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
+import { FaBuilding, FaMapMarkerAlt } from "react-icons/fa";
+import { FaBangladeshiTakaSign, FaEnvelope } from "react-icons/fa6";
 
 const ClubDetails = () => {
   const { id } = useParams();
   const location = useLocation();
+  console.log("Club Details:", location);
+  const navigate = useNavigate();
+  console.log("Club Details:", navigate);
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const query = new URLSearchParams(location.search);
@@ -106,6 +109,15 @@ const ClubDetails = () => {
     query,
   ]);
 
+  const handleBuyMembership = () => {
+    if (!user) {
+      navigate("/login", { state: location?.pathname });
+      return;
+    }
+
+    setIsModalOpen(true);
+  };
+
   const handlePayNow = async () => {
     try {
       const { data } = await axiosSecure.post(
@@ -144,26 +156,25 @@ const ClubDetails = () => {
               <p className="text-gray-700 mb-3">{club.description}</p>
 
               <p className="flex items-center gap-2">
-                <FaMapMarkerAlt className="text-red-500" />
-                <strong>Location:</strong> {club.location}
+                <FaMapMarkerAlt className="text-primary" />
+                {club.location}
               </p>
 
               <p className="flex items-center gap-2">
-                <FaMoneyBillWave className="text-green-500" />
-                <strong>Fee:</strong>{" "}
-                {club.membershipFee === 0
-                  ? "Free"
-                  : `BDT. ${club.membershipFee}`}
+                <FaBangladeshiTakaSign className="text-primary" />
+
+                {club.membershipFee === 0 ? "Free" : `${club.membershipFee}`}
               </p>
 
-              <p>
-                <b>Manager: </b> {club.managerEmail}
+              <p className="flex items-center gap-2">
+                <FaEnvelope className="text-primary" />
+                {club.managerEmail}
               </p>
             </div>
 
             <button
               disabled={isMember}
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleBuyMembership}
               className={`btn btn-primary mt-4 ${
                 isMember ? "cursor-not-allowed" : ""
               }`}
@@ -181,24 +192,21 @@ const ClubDetails = () => {
             <h3 className="text-2xl font-bold mb-4">Review Membership</h3>
             <div className="space-y-2">
               <p className="flex items-center gap-2">
-                <FaBuilding className="text-blue-500" />
-                <strong>Club:</strong> {club.clubName}
+                <FaBuilding className="text-primary" />
+                {club.clubName}
               </p>
 
               <p className="flex items-center gap-2">
-                <FaMapMarkerAlt className="text-red-500" />
-                <strong>Location:</strong> {club.location}
+                <FaMapMarkerAlt className="text-primary" />
+                {club.location}
               </p>
 
               <p className="flex items-center gap-2">
-                <FaMoneyBillWave className="text-green-500" />
-                <strong>Fee:</strong>{" "}
-                {club.membershipFee === 0
-                  ? "Free"
-                  : `BDT. ${club.membershipFee}`}
+                <FaBangladeshiTakaSign className="text-primary" />
+                {club.membershipFee === 0 ? "Free" : `${club.membershipFee}`}
               </p>
             </div>
-            <div className="mt-4 p-3 border rounded bg-gray-50">
+            <div className="mt-4 p-3 border-2 border-base-300 rounded">
               <p className="font-semibold">User:</p>
               <p>{user?.displayName}</p>
               <p className="text-sm text-gray-500">{user?.email}</p>

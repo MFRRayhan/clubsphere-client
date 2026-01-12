@@ -20,12 +20,30 @@ const steps = [
     description:
       "Attend events, connect with members, and grow your community experience.",
   },
+  {
+    step: "04",
+    title: "Attend Events",
+    description:
+      "Participate in exclusive events, workshops, and meetups organized by your clubs.",
+  },
+  {
+    step: "05",
+    title: "Build Connections",
+    description:
+      "Network with like-minded members and build meaningful relationships.",
+  },
+  {
+    step: "06",
+    title: "Track Progress",
+    description:
+      "Monitor your club participation, achievements, and personal growth.",
+  },
 ];
 
 const HowItWorks = () => {
   return (
     <section className="bg-base-200 py-20">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="container mx-auto">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <h2 className="text-4xl font-bold mb-4">
@@ -38,7 +56,7 @@ const HowItWorks = () => {
         </div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {steps.map((step, idx) => (
             <motion.div
               key={idx}

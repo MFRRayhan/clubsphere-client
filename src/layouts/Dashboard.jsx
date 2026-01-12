@@ -1,34 +1,22 @@
-import React from "react";
-import { NavLink, Outlet } from "react-router";
-import { IoHomeOutline } from "react-icons/io5";
-import { GoGear } from "react-icons/go";
-import useRole from "../hooks/useRole";
-import Loader from "../components/Loader";
-import { VscSettings } from "react-icons/vsc";
-import { TbLayoutSidebarLeftExpand } from "react-icons/tb";
-import { Link } from "react-router";
 import {
-  MdEventAvailable,
-  MdAddBusiness,
-  MdPendingActions,
-  MdEvent,
-} from "react-icons/md";
-import { TiGroup } from "react-icons/ti";
-import { LuNotebook } from "react-icons/lu";
-import { PiUsersFourFill } from "react-icons/pi";
-import {
-  FaUsers,
-  FaRegCalendarCheck,
-  FaClipboardList,
-  FaMoneyCheckAlt,
-  FaUserShield,
-  FaUser,
+  FaBlog,
   FaCalendarAlt,
+  FaClipboardList,
+  FaClock,
+  FaMoneyCheckAlt,
+  FaRegCalendarCheck,
+  FaUsers,
+  FaUserShield,
 } from "react-icons/fa";
-import { FaToggleOn } from "react-icons/fa";
-import { FaToggleOff } from "react-icons/fa";
+import { FaPenNib } from "react-icons/fa6";
+import { IoHomeOutline } from "react-icons/io5";
+import { LuNotebook } from "react-icons/lu";
+import { MdAddBusiness, MdEvent, MdPendingActions } from "react-icons/md";
+import { PiUsersFourFill } from "react-icons/pi";
+import { NavLink, Outlet } from "react-router";
+import Loader from "../components/Loader";
 import UserDropdown from "../components/UserDropdown";
-import Logo from "../components/logo";
+import useRole from "../hooks/useRole";
 import dashLogo from "/clubsphere-logo.png";
 
 const Dashboard = () => {
@@ -64,8 +52,6 @@ const Dashboard = () => {
                 <path d="M14 10l2 2l-2 2" />
               </svg>
             </label>
-
-            <Logo />
           </div>
 
           {/* RIGHT */}
@@ -158,13 +144,37 @@ const Dashboard = () => {
 
                 <li>
                   <NavLink
+                    to="/dashboard/admin-manage-blogs"
+                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    data-tip="Manage Blogs"
+                  >
+                    <FaBlog className="my-1.5 inline-block size-4"></FaBlog>
+                    <span className="is-drawer-close:hidden">Manage Blogs</span>
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink
                     to="/dashboard/waiting-for-approval"
                     className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                    data-tip="Waiting For Approval"
+                    data-tip="Pending Clubs & Events"
                   >
                     <MdPendingActions className="my-1.5 inline-block size-4"></MdPendingActions>
                     <span className="is-drawer-close:hidden">
-                      Waiting For Approval
+                      Pending Clubs & Events
+                    </span>
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink
+                    to="/dashboard/pending-blogs"
+                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    data-tip="Pending Blogs"
+                  >
+                    <FaClock className="my-1.5 inline-block size-4"></FaClock>
+                    <span className="is-drawer-close:hidden">
+                      Pending Blogs
                     </span>
                   </NavLink>
                 </li>
@@ -236,6 +246,17 @@ const Dashboard = () => {
 
                 <li>
                   <NavLink
+                    to="/dashboard/my-blogs"
+                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    data-tip="My Blogs"
+                  >
+                    <FaBlog className="my-1.5 inline-block size-4"></FaBlog>
+                    <span className="is-drawer-close:hidden">My Blogs</span>
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink
                     to="/dashboard/add-a-club"
                     className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                     data-tip="Add A Club"
@@ -253,6 +274,17 @@ const Dashboard = () => {
                   >
                     <FaCalendarAlt className="my-1.5 inline-block size-4"></FaCalendarAlt>
                     <span className="is-drawer-close:hidden">Add An Event</span>
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink
+                    to="/dashboard/write-a-blog"
+                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    data-tip="Write a Blog"
+                  >
+                    <FaPenNib className="my-1.5 inline-block size-4"></FaPenNib>
+                    <span className="is-drawer-close:hidden">Write a Blog</span>
                   </NavLink>
                 </li>
 

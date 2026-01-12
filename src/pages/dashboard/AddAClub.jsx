@@ -38,6 +38,7 @@ const AddAClub = () => {
         membershipFee: clubType === "Paid" ? Number(data.membershipFee) : 0,
         status: "pending",
         clubType: clubType,
+        managerName: user?.displayName,
         managerEmail: user?.email,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

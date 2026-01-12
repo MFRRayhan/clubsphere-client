@@ -1,15 +1,15 @@
-import React, { useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
-import useAuth from "../hooks/useAuth";
 import { useForm } from "react-hook-form";
-import SocialLogin from "../components/SocialLogin";
+import { Link, useLocation, useNavigate } from "react-router";
 import Swal from "sweetalert2";
+import SocialLogin from "../components/SocialLogin";
+import useAuth from "../hooks/useAuth";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const Login = () => {
-  const { signInUser, user } = useAuth();
+  const { signInUser } = useAuth();
   const axiosSecure = useAxiosSecure();
   const location = useLocation();
+  console.log(location);
   const navigate = useNavigate();
 
   const {
@@ -19,34 +19,27 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  useEffect(() => {
-    if (user) {
-      navigate("/", { replace: true });
-    }
-  }, [user, navigate]);
-
   const handleSignIn = async (data) => {
-    const from = location.state?.from?.pathname || "/";
     try {
-      // Firebase login
       const result = await signInUser(data.email, data.password);
-      console.log(result.user);
+      const loggedUser = result.user;
 
-      // Update user lastLoggedIn in backend
-      const userInfo = { email: data.email };
+      const userInfo = {
+        email: loggedUser.email,
+        lastLoggedIn: new Date(),
+      };
+
       const dbRes = await axiosSecure.post("/users", userInfo);
 
       if (dbRes.data.modifiedCount > 0) {
         console.log("User lastLoggedIn updated");
       } else if (dbRes.data.insertedId) {
         console.log("User inserted in DB");
-      } else {
-        console.warn("No changes in DB");
       }
 
-      // Reset form and navigate
       reset();
-      navigate(from, { replace: true });
+
+      navigate(location?.state || "/");
 
       Swal.fire({
         icon: "success",
@@ -56,12 +49,12 @@ const Login = () => {
         showConfirmButton: false,
       });
     } catch (err) {
-      console.error(err.message);
+      console.error(err);
 
       Swal.fire({
         icon: "error",
         title: "Login Failed",
-        text: err.message || "Invalid credentials. Please try again!",
+        text: err.message || "Invalid email or password",
       });
     }
   };

@@ -5,7 +5,7 @@ import { FaXTwitter } from "react-icons/fa6";
 const Footer = () => {
   return (
     <footer className="bg-neutral text-neutral-content">
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="container mx-auto py-16">
         <div className="grid gap-10 md:grid-cols-3">
           {/* Brand Info */}
           <div>
@@ -31,7 +31,7 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-white">Follow Us</h4>
             <div className="flex gap-4">
               <a
-                href="https://github.com"
+                href="https://github.com/MFRRayhan"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary hover:text-white transition-all"
@@ -40,7 +40,7 @@ const Footer = () => {
               </a>
 
               <a
-                href="https://www.linkedin.com/in/"
+                href="https://www.linkedin.com/in/mfr-rayhan"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary hover:text-white transition-all"
@@ -49,7 +49,7 @@ const Footer = () => {
               </a>
 
               <a
-                href="https://twitter.com"
+                href="https://twitter.com/MFRRayhan"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary hover:text-white transition-all"

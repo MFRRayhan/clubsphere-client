@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
-import useRole from "../../hooks/useRole";
+import { useState } from "react";
 import {
-  FaSearch,
   FaEye,
+  FaSearch,
   FaTrash,
+  FaUserMinus,
   FaUserShield,
   FaUsersCog,
-  FaUserMinus,
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 import Loader from "../../components/Loader";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useRole from "../../hooks/useRole";
 
 const ManageUsers = () => {
   const axiosSecure = useAxiosSecure();
@@ -90,172 +90,180 @@ const ManageUsers = () => {
   };
 
   return (
-    <div className="py-10 px-4">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h2 className="text-2xl font-bold text-primary">Manage Users</h2>
+    <div className="py-5">
+      <div className="container mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-5 gap-4">
+          <h2 className="text-2xl font-bold text-primary">Manage Users</h2>
 
-        <div className="flex items-center gap-2 w-full md:w-80 bg-white border rounded-lg shadow px-3 py-2">
-          <FaSearch className="text-gray-400" />
-          <input
-            type="search"
-            placeholder="Search User"
-            className="w-full outline-none"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="table w-full">
-          <thead className="bg-gray-100">
-            <tr>
-              <th>Index</th>
-              <th>User</th>
-              <th>Email</th>
-              <th>Joined</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {users.map((user, index) => (
-              <tr key={user._id} className="hover:bg-gray-50">
-                <td>{index + 1}</td>
-
-                <td>
-                  <div className="flex items-center gap-3">
-                    <img
-                      referrerPolicy="no-referrer"
-                      src={user.photoURL}
-                      alt="avatar"
-                      className="w-12 h-12 rounded-full border object-cover object-top"
-                    />
-                    <div>
-                      <div className="font-semibold">{user.displayName}</div>
-                    </div>
-                  </div>
-                </td>
-
-                <td>{user.email}</td>
-
-                <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-
-                <td>
-                  <span
-                    className={`text-white capitalize px-3 py-1 rounded-full text-sm ${roleBadge(
-                      user.role
-                    )}`}
-                  >
-                    {user.role}
-                  </span>
-                </td>
-
-                {/* ACTIONS */}
-                <td className="flex gap-2">
-                  {/* View */}
-                  <div className="tooltip" data-tip="View User">
-                    <button
-                      onClick={() => setSelectedUser(user)}
-                      className="btn btn-square hover:btn-primary"
-                    >
-                      <FaEye />
-                    </button>
-                  </div>
-
-                  {user.role === "member" && (
-                    <>
-                      <div className="tooltip" data-tip="Make Admin">
-                        <button
-                          onClick={() => handleChangeRole(user, "admin")}
-                          className="btn btn-square hover:text-white hover:btn-success"
-                        >
-                          <FaUserShield />
-                        </button>
-                      </div>
-
-                      <div className="tooltip" data-tip="Make Club Manager">
-                        <button
-                          onClick={() => handleChangeRole(user, "clubManager")}
-                          className="btn btn-square hover:text-white hover:btn-warning"
-                        >
-                          <FaUsersCog />
-                        </button>
-                      </div>
-                    </>
-                  )}
-
-                  {user.role !== "member" && (
-                    <div className="tooltip" data-tip="Remove Role">
-                      <button
-                        onClick={() => handleChangeRole(user, "member")}
-                        className="btn btn-square hover:text-white hover:btn-info"
-                      >
-                        <FaUserMinus />
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="tooltip" data-tip="Delete User">
-                    <button
-                      onClick={() => handleDelete(user)}
-                      className="btn btn-square hover:btn-error hover:text-white"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* USER DETAILS MODAL */}
-      {selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
-            <button
-              className="absolute top-3 right-3 text-2xl"
-              onClick={() => setSelectedUser(null)}
-            >
-              &times;
-            </button>
-
-            <h3 className="text-xl font-bold mb-4 text-center">User Details</h3>
-
-            <img
-              src={selectedUser.photoURL}
-              alt="avatar"
-              className="w-24 h-24 rounded-full mx-auto mb-4"
+          <div className="flex items-center gap-2 w-full md:w-80 border-2 border-base-300 rounded shadow px-3 py-2">
+            <FaSearch className="text-gray-400" />
+            <input
+              type="search"
+              placeholder="Search User"
+              className="w-full outline-none"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
             />
-
-            <div className="space-y-2 text-center">
-              <p>
-                <strong>Name:</strong> {selectedUser.displayName}
-              </p>
-              <p>
-                <strong>Email:</strong> {selectedUser.email}
-              </p>
-              <p className="capitalize">
-                <strong>Role:</strong> {selectedUser.role}
-              </p>
-            </div>
-
-            <div className="mt-6 flex justify-center">
-              <button
-                onClick={() => setSelectedUser(null)}
-                className="btn btn-error"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
-      )}
+
+        {/* Table */}
+        <div className="overflow-x-auto rounded-lg shadow">
+          <table className="table w-full">
+            <thead className="bg-base-300">
+              <tr>
+                <th>Index</th>
+                <th>User</th>
+                <th>Email</th>
+                <th>Joined</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {users.map((user, index) => (
+                <tr key={user._id} className="hover:bg-base-200">
+                  <td>{index + 1}</td>
+
+                  <td>
+                    <div className="flex items-center gap-3">
+                      <img
+                        referrerPolicy="no-referrer"
+                        src={user.photoURL}
+                        alt="avatar"
+                        className="w-12 h-12 rounded-full border object-cover object-top"
+                      />
+                      <div>
+                        <div className="font-semibold">{user.displayName}</div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>{user.email}</td>
+
+                  <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+
+                  <td>
+                    <span
+                      className={`text-white capitalize px-3 py-1 rounded-full text-sm ${roleBadge(
+                        user.role
+                      )}`}
+                    >
+                      {user.role}
+                    </span>
+                  </td>
+
+                  {/* ACTIONS */}
+                  <td>
+                    <div className="flex gap-2">
+                      {/* View */}
+                      <div className="tooltip" data-tip="View User">
+                        <button
+                          onClick={() => setSelectedUser(user)}
+                          className="btn btn-square hover:btn-primary"
+                        >
+                          <FaEye />
+                        </button>
+                      </div>
+
+                      {user.role === "member" && (
+                        <>
+                          <div className="tooltip" data-tip="Make Admin">
+                            <button
+                              onClick={() => handleChangeRole(user, "admin")}
+                              className="btn btn-square hover:text-white hover:btn-success"
+                            >
+                              <FaUserShield />
+                            </button>
+                          </div>
+
+                          <div className="tooltip" data-tip="Make Club Manager">
+                            <button
+                              onClick={() =>
+                                handleChangeRole(user, "clubManager")
+                              }
+                              className="btn btn-square hover:text-white hover:btn-warning"
+                            >
+                              <FaUsersCog />
+                            </button>
+                          </div>
+                        </>
+                      )}
+
+                      {user.role !== "member" && (
+                        <div className="tooltip" data-tip="Remove Role">
+                          <button
+                            onClick={() => handleChangeRole(user, "member")}
+                            className="btn btn-square hover:text-white hover:btn-info"
+                          >
+                            <FaUserMinus />
+                          </button>
+                        </div>
+                      )}
+
+                      <div className="tooltip" data-tip="Delete User">
+                        <button
+                          onClick={() => handleDelete(user)}
+                          className="btn btn-square hover:btn-error hover:text-white"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* USER DETAILS MODAL */}
+        {selectedUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
+              <button
+                className="absolute top-3 right-3 text-2xl"
+                onClick={() => setSelectedUser(null)}
+              >
+                &times;
+              </button>
+
+              <h3 className="text-xl font-bold mb-4 text-center">
+                User Details
+              </h3>
+
+              <img
+                src={selectedUser.photoURL}
+                alt="avatar"
+                className="w-24 h-24 rounded-full mx-auto mb-4"
+              />
+
+              <div className="space-y-2 text-center">
+                <p>
+                  <strong>Name:</strong> {selectedUser.displayName}
+                </p>
+                <p>
+                  <strong>Email:</strong> {selectedUser.email}
+                </p>
+                <p className="capitalize">
+                  <strong>Role:</strong> {selectedUser.role}
+                </p>
+              </div>
+
+              <div className="mt-6 flex justify-center">
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="btn btn-error"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
